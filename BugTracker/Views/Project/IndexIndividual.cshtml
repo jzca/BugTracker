@@ -23,11 +23,6 @@ else
                 <th>Project name</th>
                 <th>Date Created</th>
                 <th>Date Updated</th>
-                @if (User.IsInRole("Admin") || User.IsInRole("Project Manager"))
-                {
-                    <th></th>
-                    <th></th>
-                }
             </tr>
         </thead>
         <tbody>
@@ -37,17 +32,6 @@ else
                     <td>@record.Name</td>
                     <td>@record.DateCreated</td>
                     <td>@record.DateUpdated</td>
-                    @if (User.IsInRole("Admin") || User.IsInRole("Project Manager"))
-                    {
-                        <td>
-                            <a href="@Url.Action("AssignProjectManagement", "Project", new {id = record.Id})">Assign</a>
-                        </td>
-                        <td>
-                            <a href="@Url.Action("Edit", "Project", new { id = record.Id })">Edit</a>
-                        </td>
-
-
-                    }
                 </tr>
             }
 
