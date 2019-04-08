@@ -12,6 +12,7 @@ namespace BugTracker.Models
         public string PhoneNumber { get; set; }
         public bool TwoFactor { get; set; }
         public bool BrowserRemembered { get; set; }
+        public string DisplayName { get; set; }
     }
 
     public class ManageLoginsViewModel
@@ -56,6 +57,12 @@ namespace BugTracker.Models
         [Display(Name = "Confirm new password")]
         [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
+    }
+
+    public class ChangeDisplayName
+    {
+        [Required]
+        public string DisplayName { get; set; }
     }
 
     public class AddPhoneNumberViewModel

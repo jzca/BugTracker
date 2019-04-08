@@ -15,9 +15,11 @@ namespace BugTracker.Controllers
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
+        private ApplicationDbContext DbContext;
 
         public ManageController()
         {
+            DbContext = new ApplicationDbContext();
         }
 
         public ManageController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
@@ -70,7 +72,9 @@ namespace BugTracker.Controllers
                 PhoneNumber = await UserManager.GetPhoneNumberAsync(userId),
                 TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userId),
                 Logins = await UserManager.GetLoginsAsync(userId),
-                BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId)
+                BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId),
+                DisplayName = DbContext.Users.Where(p => p.Id == userId)
+                .Select(p=> p.DisplayName).FirstOrDefault()               
             };
             return View(model);
         }
@@ -242,6 +246,38 @@ namespace BugTracker.Controllers
             }
             AddErrors(result);
             return View(model);
+        }
+
+        // GET: /Manage/ChangeDisplayName
+        [HttpGet]
+        public ActionResult ChangeDisplayName()
+        {
+            //var userId = User.Identity.GetUserId();
+            //var model = new IndexViewModel
+            //{
+            //    DisplayName = DbContext.Users.Where(p => p.Id == userId)
+            //    .Select(p => p.DisplayName).FirstOrDefault()
+            //};
+            return View();
+        }
+
+        //
+        // POST: /Manage/ChangeDisplayName
+        [HttpPost]
+        public ActionResult ChangeDisplayName(ChangeDisplayName model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+            var userId = User.Identity.GetUserId();
+            var user = DbContext.Users.Where(p => p.Id == userId).FirstOrDefault();
+            user.DisplayName = model.DisplayName;
+
+            DbContext.SaveChanges();
+
+
+            return RedirectToAction(nameof(ManageController.Index));
         }
 
         //

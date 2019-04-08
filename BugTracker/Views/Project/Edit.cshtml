@@ -1,0 +1,19 @@
+﻿@model CreateEditProjectViewModel
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h3>Edit project</h3>
+
+<form method="post">
+    @Html.ValidationSummary(false)
+
+    <div class="form-group">
+        @Html.LabelFor(p => p.Name, "Project name")
+        @Html.TextBoxFor(p => p.Name, new { @class = "form-control", placeholder = "Post name" })
+    </div>
+    <div class="">
+        <button type="submit" class="btn btn-default">Submit</button>
+    </div>
+
+</form>

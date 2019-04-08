@@ -1,0 +1,106 @@
+﻿@model AssignProjectViewModel
+@{
+    ViewBag.Title = "Assign";
+}
+
+<h2>Assign</h2>
+
+@section scripts  {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(function () {
+                $(".btn-assign").on('click', function (e) {
+                    e.preventDefault();
+                    $(this).closest('form').submit();
+                });
+            });
+
+        });
+    </script>
+}
+
+@Html.ValidationSummary(false)
+
+@if (Model == null)
+{
+    <div style="margin-top:15px;">
+        <p><strong>There are no projects or users</strong></p>
+    </div>
+}
+else
+{
+    <div>
+        @foreach (var record in Model.MyUsers)
+        {
+            <div>@record.UserName</div>
+            <div>
+                <form method="post" action="@Url.Action("UnAssign", "Project", new { userId = record.Id, pJid = Model.ProjectId } )">
+                    <a href="#" class="btn-assign">UnAssign</a>
+                </form>
+            </div>
+        }
+    </div>
+
+
+
+
+
+    <table class="table table-striped table-auto-sort" width="50%">
+        <thead>
+            <tr>
+                <th>ProjectName</th>
+                <th>Email</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td>@Model.ProjectName</td>
+                @foreach (var record in Model.MyUsers)
+                {
+                    <td>@record.UserName</td>
+                    <td>
+                        <form method="post" action="@Url.Action("UnAssign", "Project", new { userId = record.Id, pJid = Model.ProjectId } )">
+                            <a href="#" class="btn-assign">UnAssign</a>
+                        </form>
+
+                    </td>
+                }
+
+                <th></th>
+            </tr>
+
+
+
+        </tbody>
+    </table>
+
+    <table class="table table-striped table-auto-sort">
+        <thead>
+            <tr>
+                <th>UserName</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+
+                @foreach (var record in Model.Users)
+                {
+                    <td>@record.UserName</td>
+                    <td>
+                        <form method="post" action="@Url.Action("Assign", "Project", new { userId = record.Id, pJid = Model.ProjectId } )">
+                            <a href="#" class="btn-assign">Assign</a>
+                        </form>
+
+                    </td>
+                }
+            </tr>
+
+
+
+        </tbody>
+    </table>
+}

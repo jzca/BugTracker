@@ -57,6 +57,11 @@ namespace BugTracker.Controllers
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
+            bool signInYes = User.Identity.IsAuthenticated;
+            if (signInYes)
+            {
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
             ViewBag.ReturnUrl = returnUrl;
             return View();
         }
@@ -151,10 +156,19 @@ namespace BugTracker.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var user = new ApplicationUser { UserName = model.Email, Email = model.Email};
+                if (user.Email.Contains("@"))
+                {
+                    user.DisplayName = model.Email.Split('@')[0];
+                }
+                else
+                {
+                    user.DisplayName = GetHashCode().ToString().Substring(0, 5);
+                }                    
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+                    UserManager.AddToRole(user.Id, "Submitter");
                     await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
                     
                     // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
@@ -203,7 +217,7 @@ namespace BugTracker.Controllers
             if (ModelState.IsValid)
             {
                 var user = await UserManager.FindByNameAsync(model.Email);
-                if (user == null || !(await UserManager.IsEmailConfirmedAsync(user.Id)))
+                if (user == null)
                 {
                     // Don't reveal that the user does not exist or is not confirmed
                     return View("ForgotPasswordConfirmation");
@@ -211,10 +225,20 @@ namespace BugTracker.Controllers
 
                 // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
                 // Send an email with this link
-                // string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
-                // var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);		
-                // await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>");
-                // return RedirectToAction("ForgotPasswordConfirmation", "Account");
+
+                var eService = new MvcBlog.Models.EmailService();              
+                string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
+                var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+                var userId = UserManager.FindByNameAsync(model.Email);
+                var userEmail = UserManager.GetEmail(user.Id);
+                if (userEmail != null)
+                {
+                eService.Send(userEmail,                    
+                    "Reset Password",
+                    "Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>");
+                }
+          
+                return RedirectToAction("ForgotPasswordConfirmation", "Account");
             }
 
             // If we got this far, something failed, redisplay form
@@ -392,7 +416,7 @@ namespace BugTracker.Controllers
         public ActionResult LogOff()
         {
             AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Login", "Account");
         }
 
         //
