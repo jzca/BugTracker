@@ -78,7 +78,6 @@ namespace BugTracker.Controllers
             model.ProjectBelong = new SelectList(subPjts, "Id", "Name");
             model.TicketType = new SelectList(DbContext.TicketTypes, "Id", "Name");
             model.TicketPriority = new SelectList(DbContext.TicketPriorities, "Id", "Name");
-            model.TicketStatus = new SelectList(DbContext.TicketStatuses, "Id", "Name");
             return View(model);
         }
 
@@ -106,14 +105,19 @@ namespace BugTracker.Controllers
                 ticketForSaving.DateCreated = DateTime.Now;
                 ticketForSaving.CreatorId = appUserId;
                 ticketForSaving.ProjectId = Convert.ToInt32(formData.GetProjectBelong);
+                ticketForSaving.TicketStatusId = 1;
                 DbContext.Tickets.Add(ticketForSaving);
             }
             else
             {
                 ticketForSaving = DbContext.Tickets.FirstOrDefault(
                p => p.Id == id);
-
                 ticketForSaving.DateUpdated = DateTime.Now;
+
+                if (User.IsInRole("Admin") || User.IsInRole("Project Manager"))
+                {
+                    ticketForSaving.TicketStatusId = Convert.ToInt32(formData.GetTicketStatus);
+                }
 
                 if (ticketForSaving == null)
                 {
@@ -124,7 +128,6 @@ namespace BugTracker.Controllers
             ticketForSaving.Title = formData.Title;
             ticketForSaving.Description = formData.Description;
             ticketForSaving.TicketPriorityId = Convert.ToInt32(formData.GetTicketPriority);
-            ticketForSaving.TicketStatusId = Convert.ToInt32(formData.GetTicketStatus);
             ticketForSaving.TicketTypeId = Convert.ToInt32(formData.GetTicketType);
 
             DbContext.SaveChanges();
@@ -135,7 +138,7 @@ namespace BugTracker.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin, Project Manager")]
+        [Authorize(Roles = "Admin, Project Manager, Submitter")]
         public ActionResult Edit(int? id)
         {
             if (!id.HasValue)
@@ -155,17 +158,20 @@ namespace BugTracker.Controllers
             model.Title = ticket.Title;
             model.Description = ticket.Description;
             model.GetTicketPriority = Convert.ToString(ticket.TicketPriorityId);
-            model.GetTicketStatus = Convert.ToString(ticket.TicketStatusId);
             model.GetTicketType = Convert.ToString(ticket.TicketTypeId);
             model.TicketType = new SelectList(DbContext.TicketTypes, "Id", "Name");
             model.TicketPriority = new SelectList(DbContext.TicketPriorities, "Id", "Name");
-            model.TicketStatus = new SelectList(DbContext.TicketStatuses, "Id", "Name");
+            if (User.IsInRole("Admin") || User.IsInRole("Project Manager"))
+            {
+                model.GetTicketStatus = Convert.ToString(ticket.TicketStatusId);
+                model.TicketStatus = new SelectList(DbContext.TicketStatuses, "Id", "Name");
+            }
 
             return View(model);
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin, Project Manager")]
+        [Authorize(Roles = "Admin, Project Manager, Submitter")]
         public ActionResult Edit(int id, CreateEditTicketViewModel formData)
         {
             return SaveTicket(id, formData);

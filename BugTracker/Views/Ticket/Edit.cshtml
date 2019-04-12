@@ -24,14 +24,17 @@
                                   new { @class = "form-control" }
                               )
     </div>
-    <div class="form-group">
-        @Html.LabelFor(p => p.GetTicketStatus, "Status")
-        @Html.DropDownListFor(p => p.GetTicketStatus, (SelectList)Model.TicketStatus,
-                                  "Select a Status",
-                                  new { @class = "form-control" }
-                              )
+    @if (User.IsInRole("Admin") || User.IsInRole("Project Manager"))
+    {
+        <div class="form-group">
+            @Html.LabelFor(p => p.GetTicketStatus, "Status")
+            @Html.DropDownListFor(p => p.GetTicketStatus, (SelectList)Model.TicketStatus,
+                                      "Select a Status",
+                                      new { @class = "form-control" }
+                                  )
 
-    </div>
+        </div>
+    }
 
     <div class="form-group">
         @Html.LabelFor(p => p.GetTicketPriority, "Priority")
