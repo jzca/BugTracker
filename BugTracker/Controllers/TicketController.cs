@@ -123,7 +123,6 @@ namespace BugTracker.Controllers
 
             ticketForSaving.Title = formData.Title;
             ticketForSaving.Description = formData.Description;
-            //ticketForSaving.ProjectId = Convert.ToInt32(formData.GetProjectBelong);
             ticketForSaving.TicketPriorityId = Convert.ToInt32(formData.GetTicketPriority);
             ticketForSaving.TicketStatusId = Convert.ToInt32(formData.GetTicketStatus);
             ticketForSaving.TicketTypeId = Convert.ToInt32(formData.GetTicketType);
@@ -172,84 +171,5 @@ namespace BugTracker.Controllers
             return SaveTicket(id, formData);
         }
 
-        private void PopulateViewBag()
-        {
-            //formData.DropDownSources = DbContext.TicketTypes
-            //    .Select(p => new DropDownTicketViewModel
-            //    {
-            //        Id = p.Id,
-            //        Name = p.Name
-            //    }).ToList();
-
-
-
-
-            var types = new SelectList(
-              new List<string>
-              {
-                 TicketEnum.Type.Bug.ToString(),
-                 TicketEnum.Type.Database.ToString(),
-                 TicketEnum.Type.Feature.ToString(),
-                 TicketEnum.Type.Support.ToString()
-              });
-
-            var statuses = new SelectList(
-                                  new List<string>
-                                  {
-                                       TicketEnum.Status.Open.ToString(),
-                                       TicketEnum.Status.Rejected.ToString(),
-                                       TicketEnum.Status.Resolved.ToString()
-                                  });
-
-            var priorities = new SelectList(
-                                  new List<string>
-                                  {
-                                   TicketEnum.Priority.Low.ToString(),
-                                   TicketEnum.Priority.Medium.ToString(),
-                                   TicketEnum.Priority.High.ToString()
-                                  });
-
-            ViewBag.Types = types;
-            ViewBag.Statuses = statuses;
-            ViewBag.Priorities = priorities;
-
-        }
-
-
     }
 }
-
-
-//var types = new SelectList(
-//                      new List<string>
-//                      {
-//                                      TicketEnum.Type.Bug.ToString(),
-//                                      TicketEnum.Type.Database.ToString(),
-//                                      TicketEnum.Type.Feature.ToString(),
-//                                      TicketEnum.Type.Support.ToString()
-//                      });
-
-//var statuses = new SelectList(
-//                      new List<string>
-//                      {
-//                                       TicketEnum.Status.Open.ToString(),
-//                                       TicketEnum.Status.Rejected.ToString(),
-//                                       TicketEnum.Status.Resolved.ToString()
-//                      });
-
-//var priorities = new SelectList(
-//                      new List<string>
-//                      {
-//                                   TicketEnum.Priority.Low.ToString(),
-//                                   TicketEnum.Priority.Medium.ToString(),
-//                                   TicketEnum.Priority.High.ToString()
-//                      });
-
-
-//var leftUsers = DbContext.Users
-//.Where(p => p.Id != userId)
-//.Select(n => new DropDownTicketViewModel
-//{
-//    Id = n.Id,
-//    Name = n.Name
-//}).ToList();
