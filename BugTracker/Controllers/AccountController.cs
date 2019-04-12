@@ -226,7 +226,7 @@ namespace BugTracker.Controllers
                 // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
                 // Send an email with this link
 
-                var eService = new MvcBlog.Models.EmailService();              
+                var eService = new BugTracker.Models.EmailService();              
                 string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
                 var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
                 var userId = UserManager.FindByNameAsync(model.Email);

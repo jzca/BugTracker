@@ -34,7 +34,9 @@ namespace BugTracker.Controllers
                     Id = p.Id,
                     Name = p.Name,
                     DateCreated = p.DateCreated,
-                    DateUpdated = p.DateUpdated
+                    DateUpdated = p.DateUpdated,
+                    AssignedUsers = p.Users.Count,
+                    Tickets = 0
                 }).ToList();
 
             return View(model);
@@ -51,7 +53,9 @@ namespace BugTracker.Controllers
                     Id = p.Id,
                     Name = p.Name,
                     DateCreated = p.DateCreated,
-                    DateUpdated = p.DateUpdated
+                    DateUpdated = p.DateUpdated,
+                    AssignedUsers = p.Users.Count,
+                    Tickets = 0
                 }).ToList();
 
             return View(model);
@@ -154,9 +158,16 @@ namespace BugTracker.Controllers
                 UserName = n.UserName
             }).ToList();
 
-
             var project = DbContext.Projects.FirstOrDefault(
                 p => p.Id == id.Value);
+
+            var repeated = new UserProjectViewModel();
+
+            foreach(var userRm in project.Users)
+            {
+                repeated = allUsers.Where(m => m.Id == userRm.Id).FirstOrDefault();
+                allUsers.Remove(repeated);
+            }
 
             if (project == null)
             {
@@ -218,6 +229,14 @@ namespace BugTracker.Controllers
             //    UserName = n.UserName
             //}).FirstOrDefault();
 
+            var leftUsers = DbContext.Users
+                .Where(p=> p.Id != userId)
+                .Select(n => new UserProjectViewModel
+            {
+                Id = n.Id,
+                UserName = n.UserName
+            }).ToList();
+
 
             bool freshProject = true;
             if (user.Projects.Any())
@@ -236,6 +255,19 @@ namespace BugTracker.Controllers
             //    "Already Assigned");
             //}
 
+            //var model = new AssignProjectViewModel();
+
+            //model.ProjectId = project.Id;
+            //model.ProjectName = project.Name;
+            //model.MyUsers.AddRange(project.Users
+            //    .Select(n => new UserProjectViewModel
+            //    {
+            //        Id = n.Id,
+            //        UserName = n.UserName
+            //    }).ToList());
+            //model.Users.AddRange(leftUsers);
+
+            //return View("AssignProjectManagement", model);
 
             return RedirectToAction(nameof(ProjectController.AssignProjectManagement), new { id = pJid });
         }
@@ -258,173 +290,7 @@ namespace BugTracker.Controllers
             return RedirectToAction(nameof(ProjectController.AssignProjectManagement), new { id = pJid });
         }
 
-        [Authorize(Roles = "Admin")]
-        public ActionResult AssignRoleManagement()
-        {
-            var admin = "Admin";
-            var dev = "Developer";
-            var pjm = "Project Manager";
-            var sub = "Submitter";
-
-            var allUsers = DbContext.Users.Select(n => new UserForAssignRoleViewModel
-            {
-                Id = n.Id,
-                UserName = n.UserName
-            }).ToList();
-            var roles = DbContext.Roles.Select(n => n.Name).ToList();
-
-            foreach (var p in allUsers)
-            {
-                p.IsAdmin = UserRoleHelper.IsUserInRole(p.Id, admin);
-                p.IsDev = UserRoleHelper.IsUserInRole(p.Id, dev);
-                p.IsPm = UserRoleHelper.IsUserInRole(p.Id, pjm);
-                p.IsSub = UserRoleHelper.IsUserInRole(p.Id, sub);
-
-                p.DisplayIsAdmin = (p.IsAdmin) ? "fas fa-check" : "fas fa-times";
-                p.DisplayIsDev = (p.IsDev) ? "fas fa-check" : "fas fa-times";
-                p.DisplayIsPm = (p.IsPm) ? "fas fa-check" : "fas fa-times";
-                p.DisplayIsSub = (p.IsSub) ? "fas fa-check" : "fas fa-times";
 
 
-            }
-
-
-            var model = new AssignRoleManagementViewModel();
-            model.Users.AddRange(allUsers);
-            model.Roles.AddRange(roles);
-
-
-            return View(model);
-        }
-
-        [HttpGet]
-        [Authorize(Roles = "Admin")]
-        public ActionResult AssignRole(string id)
-        {
-
-            var admin = "Admin";
-            var dev = "Developer";
-            var pjm = "Project Manager";
-            var sub = "Submitter";
-
-            var roles = DbContext.Roles.Select(n => n.Name).ToList();
-
-            var selectedUser = DbContext.Users
-                .Where(p => p.Id == id)
-                .Select(n => new UserForAssignRoleViewModel
-                {
-                    Id = n.Id,
-                    UserName = n.UserName
-                }).FirstOrDefault();
-
-            selectedUser.IsAdmin = UserRoleHelper.IsUserInRole(selectedUser.Id, admin);
-            selectedUser.IsDev = UserRoleHelper.IsUserInRole(selectedUser.Id, dev);
-            selectedUser.IsPm = UserRoleHelper.IsUserInRole(selectedUser.Id, pjm);
-            selectedUser.IsSub = UserRoleHelper.IsUserInRole(selectedUser.Id, sub);
-
-            var model = new AssignRoleViewModel();
-            model.User = selectedUser;
-            model.Roles.AddRange(roles);
-            return View(model);
-        }
-
-        [HttpPost]
-        [Authorize(Roles = "Admin")]
-        public ActionResult AssignRole(string id, AssignRoleViewModel formData)
-        {
-            var admin = "Admin";
-            var dev = "Developer";
-            var pjm = "Project Manager";
-            var sub = "Submitter";
-
-            if (formData.User.IsAdmin)
-            {
-                if (!UserRoleHelper.IsUserInRole(id, admin))
-                {
-                    UserRoleHelper.AddUserToRole(id, admin);
-                }
-            }
-            else
-            {
-                if (UserRoleHelper.IsUserInRole(id, admin))
-                {
-                    UserRoleHelper.RemoveUserFromRole(id, admin);
-
-                }
-            }
-
-            if (formData.User.IsDev)
-            {
-                if (!UserRoleHelper.IsUserInRole(id, dev))
-                {
-                    UserRoleHelper.AddUserToRole(id, dev);
-                }
-            }
-            else
-            {
-                if (UserRoleHelper.IsUserInRole(id, dev))
-                {
-                    UserRoleHelper.RemoveUserFromRole(id, dev);
-                }
-            }
-            if (formData.User.IsPm)
-            {
-                if (!UserRoleHelper.IsUserInRole(id, pjm))
-                {
-                    UserRoleHelper.AddUserToRole(id, pjm);
-                }
-            }
-            else
-            {
-                if (UserRoleHelper.IsUserInRole(id, pjm))
-                {
-                    UserRoleHelper.RemoveUserFromRole(id, pjm);
-                }
-
-            }
-            if (formData.User.IsSub)
-            {
-                if (!UserRoleHelper.IsUserInRole(id, sub))
-                {
-                    UserRoleHelper.AddUserToRole(id, sub);
-                }
-            }
-            else
-            {
-                if (UserRoleHelper.IsUserInRole(id, sub))
-                {
-                    UserRoleHelper.RemoveUserFromRole(id, sub);
-                }
-            }
-
-            var allUsers = DbContext.Users.Select(n => new UserForAssignRoleViewModel
-            {
-                Id = n.Id,
-                UserName = n.UserName
-            }).ToList();
-
-            var roles = DbContext.Roles.Select(n => n.Name).ToList();
-
-            foreach (var p in allUsers)
-            {
-                p.IsAdmin = UserRoleHelper.IsUserInRole(p.Id, admin);
-                p.IsDev = UserRoleHelper.IsUserInRole(p.Id, dev);
-                p.IsPm = UserRoleHelper.IsUserInRole(p.Id, pjm);
-                p.IsSub = UserRoleHelper.IsUserInRole(p.Id, sub);
-
-                p.DisplayIsAdmin = (p.IsAdmin) ? "fas fa-check" : "fas fa-times";
-                p.DisplayIsDev = (p.IsDev) ? "fas fa-check" : "fas fa-times";
-                p.DisplayIsPm = (p.IsPm) ? "fas fa-check" : "fas fa-times";
-                p.DisplayIsSub = (p.IsSub) ? "fas fa-check" : "fas fa-times";
-
-
-            }
-
-            var model = new AssignRoleManagementViewModel();
-            model.Users.AddRange(allUsers);
-            model.Roles.AddRange(roles);
-
-            return View("AssignRoleManagement", model);
-        }
     }
 }

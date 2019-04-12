@@ -72,9 +72,7 @@ namespace BugTracker.Controllers
                 PhoneNumber = await UserManager.GetPhoneNumberAsync(userId),
                 TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userId),
                 Logins = await UserManager.GetLoginsAsync(userId),
-                BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId),
-                DisplayName = DbContext.Users.Where(p => p.Id == userId)
-                .Select(p=> p.DisplayName).FirstOrDefault()               
+                BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId)           
             };
             return View(model);
         }
@@ -252,13 +250,15 @@ namespace BugTracker.Controllers
         [HttpGet]
         public ActionResult ChangeDisplayName()
         {
-            //var userId = User.Identity.GetUserId();
-            //var model = new IndexViewModel
-            //{
-            //    DisplayName = DbContext.Users.Where(p => p.Id == userId)
-            //    .Select(p => p.DisplayName).FirstOrDefault()
-            //};
-            return View();
+            var userId = User.Identity.GetUserId();
+            var getUserDisplayName = DbContext.Users.Where(p => p.Id == userId).Select(b => b.DisplayName).FirstOrDefault();
+
+            var model = new ChangeDisplayName()
+            {
+                DisplayName = getUserDisplayName
+            };
+
+            return View(model);
         }
 
         //

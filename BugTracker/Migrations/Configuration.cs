@@ -1,6 +1,7 @@
 namespace BugTracker.Migrations
 {
     using BugTracker.Models;
+    using BugTracker.Models.Domain;
     using BugTracker.Models.Helper;
     using Microsoft.AspNet.Identity;
     using Microsoft.AspNet.Identity.EntityFramework;
@@ -21,6 +22,26 @@ namespace BugTracker.Migrations
 
         protected override void Seed(BugTracker.Models.ApplicationDbContext context)
         {
+
+            context.TicketPriorities.AddOrUpdate(p => p.Name,
+                new TicketPriority { Name = "Low" },
+                new TicketPriority { Name = "Medium" },
+                new TicketPriority { Name = "High" }
+                );
+
+            context.TicketStatuses.AddOrUpdate(p => p.Name,
+                        new TicketStatus { Name = "Open" },
+                        new TicketStatus { Name = "Resolved" },
+                        new TicketStatus { Name = "Rejected" }
+                        );
+
+            context.TicketTypes.AddOrUpdate(p => p.Name,
+                        new TicketType { Name = "Bug" },
+                        new TicketType { Name = "Feature" },
+                        new TicketType { Name = "Database" },
+                        new TicketType { Name = "Support" }
+                        );
+
             //Seeding Users and Roles
 
             //RoleManager, used to manage roles
@@ -94,3 +115,24 @@ namespace BugTracker.Migrations
         }
     }
 }
+
+
+//context.TicketPriorities.AddOrUpdate(p => p.Name,
+//                new TicketPriority { Name = TicketEnum.Priority.Low.ToString() },
+//                new TicketPriority { Name = TicketEnum.Priority.Medium.ToString() },
+//                new TicketPriority { Name = TicketEnum.Priority.High.ToString() }
+//                );
+
+//            context.TicketStatuses.AddOrUpdate(p => p.Name,
+//                        new TicketStatus { Name = TicketEnum.Status.Open.ToString() },
+//                        new TicketStatus { Name = TicketEnum.Status.Rejected.ToString() },
+//                        new TicketStatus { Name = TicketEnum.Status.Resolved.ToString() }
+//                        );
+
+//            context.TicketTypes.AddOrUpdate(p => p.Name,
+//                        new TicketType { Name = TicketEnum.Type.Bug.ToString() },
+//                        new TicketType { Name = TicketEnum.Type.Database.ToString() },
+//                        new TicketType { Name = TicketEnum.Type.Feature.ToString() },
+//                        new TicketType { Name = TicketEnum.Type.Support.ToString() }
+//                        );
+

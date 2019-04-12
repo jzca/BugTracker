@@ -10,11 +10,11 @@
     <h4>Change your account settings</h4>
     <hr />
     <dl class="dl-horizontal">
-        <dt>Display name: @Model.DisplayName.ToString()</dt>
+        <dt>Display name:</dt>
         <dd>
             [@Html.ActionLink("Change Display Name", "ChangeDisplayName")]
         </dd>
-        <dt>Password: will not show for security reasons</dt>
+        <dt>Password:</dt>
         <dd>
             [
             @if (Model.HasPassword)

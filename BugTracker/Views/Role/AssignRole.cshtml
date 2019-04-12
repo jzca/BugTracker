@@ -32,29 +32,3 @@
 </form>
 
 
-@*<table class="table table-striped table-auto-sort">
-    <thead>
-        <tr>
-            <th>Username</th>
-            @foreach (var roleName in Model.Roles)
-            {
-                <th>@roleName</th>
-            }
-
-
-        </tr>
-    </thead>
-    <tbody>
-
-        <tr>
-            <td>@Model.User.UserName</td>
-            <td>@Html.CheckBoxFor(p => Model.User.IsAdmin)</td>
-            <td>@Html.CheckBoxFor(p => Model.User.IsDev)</td>
-            <td>@Html.CheckBoxFor(p => Model.User.IsPm)</td>
-            <td>@Html.CheckBoxFor(p => Model.User.IsSub)</td>
-        </tr>
-
-
-    </tbody>
-</table>*@
-

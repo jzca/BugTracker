@@ -52,7 +52,7 @@
             @if (User.IsInRole("Admin"))
             {
                 <li class="nav-item">
-                    <a class="nav-link" href="@Url.Action("AssignRoleManagement", "Project")">
+                    <a class="nav-link" href="@Url.Action("AssignRoleManagement", "Role")">
                         <i class="fas fa-users"></i>
                         <span>Manger Users</span>
                     </a>
@@ -74,14 +74,35 @@
                 </a>
             </li>
             @*@if (User.IsInRole("Submitter") || User.IsInRole("Admin"))
-            {
-                <li class="nav-item">
-                    <a class="nav-link" href="index.html">
-                        <i class="fas fa-ticket-alt"></i>
-                        <span>Tickets</span>
-                    </a>
-                </li>
-            }*@
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">
+                            <i class="fas fa-ticket-alt"></i>
+                            <span>Tickets</span>
+                        </a>
+                    </li>
+                }*@
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="true" aria-controls="collapsePages">
+                    <i class="fas fa-fw fa-folder"></i>
+                    <span>Tickets</span>
+                </a>
+                <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Tickets</h6>
+                        @if (User.IsInRole("Submitter"))
+                        {
+                            <a class="collapse-item" href="@Url.Action("Create", "Ticket")">Create</a>
+                            <a class="collapse-item" href="@Url.Action("IndexIndividual", "Ticket")">My Tickets</a>
+                        }
+                        @if (User.IsInRole("Admin") || User.IsInRole("Project Manager"))
+                        {
+                            <a class="collapse-item" href="@Url.Action("Index", "Ticket")">All Tickets</a>
+                        }
+                    </div>
+                </div>
+            </li>
 
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">

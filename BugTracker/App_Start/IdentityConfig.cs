@@ -11,7 +11,6 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
 using BugTracker.Models;
-using MvcBlog.Models;
 
 namespace BugTracker
 {
@@ -39,7 +38,7 @@ namespace BugTracker
             // Configure validation logic for usernames
             manager.UserValidator = new UserValidator<ApplicationUser>(manager)
             {
-                AllowOnlyAlphanumericUserNames = false,
+                AllowOnlyAlphanumericUserNames = true,
                 RequireUniqueEmail = true
             };
 

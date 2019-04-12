@@ -8,7 +8,7 @@ using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace MvcBlog.Models
+namespace BugTracker.Models
 
 {
     public class EmailService : IIdentityMessageService

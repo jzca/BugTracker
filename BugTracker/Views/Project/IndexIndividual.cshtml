@@ -1,12 +1,14 @@
 ﻿@model  List<IndexProjectViewModel>
 @{
-    ViewBag.Title = "My Projects";
+                /**/
+
+                ViewBag.Title = "My Projects";
 }
 
 <h2>@ViewBag.Title</h2>
 
 @section scripts  {
-<script src="~/resources/js/auto-table.js"></script>
+    <script src="~/resources/js/auto-table.js"></script>
 }
 
 @if (!Model.Any())
@@ -23,6 +25,8 @@ else
                 <th>Project name</th>
                 <th>Date Created</th>
                 <th>Date Updated</th>
+                <th>Assigned Users</th>
+                <th>Tickets</th>
             </tr>
         </thead>
         <tbody>
@@ -32,6 +36,8 @@ else
                     <td>@record.Name</td>
                     <td>@record.DateCreated</td>
                     <td>@record.DateUpdated</td>
+                    <td>@record.AssignedUsers</td>
+                    <td>@record.Tickets</td>
                 </tr>
             }
 

@@ -1,0 +1,54 @@
+﻿@model CreateEditTicketViewModel
+@{
+    ViewBag.Title = "Create";
+}
+
+<h3>Create a Ticket</h3>
+
+<form method="post">
+    @Html.ValidationSummary(false)
+
+    <div class="form-group">
+        @Html.LabelFor(p => p.Title, "Title")
+        @Html.TextBoxFor(p => p.Title, new { @class = "form-control", placeholder = "Ticket title" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(p => p.Description, "Description")
+        @Html.TextAreaFor(p => p.Description, new { @class = "form-control", placeholder = "description" })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(p => p.GetProjectBelong, "Project")
+        @Html.DropDownListFor(p => p.GetProjectBelong, (SelectList)Model.ProjectBelong,
+                                  "Select a Project",
+                                  new { @class = "form-control" }
+                              )
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(p => p.GetTicketType, "Type")
+        @Html.DropDownListFor(p => p.GetTicketType, (SelectList)Model.TicketType,
+                                  "Select a Type",
+                                  new { @class = "form-control" }
+                              )
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(p => p.GetTicketStatus, "Status")
+        @Html.DropDownListFor(p => p.GetTicketStatus, (SelectList)Model.TicketStatus,
+                                  "Select a Status",
+                                  new { @class = "form-control" }
+                              )
+
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(p => p.GetTicketPriority, "Priority")
+        @Html.DropDownListFor(p => p.GetTicketPriority, (SelectList)Model.TicketPriority,
+                                  "Select a Priority",
+                                  new { @class = "form-control" }
+                              )
+    </div>
+
+    <div class="">
+        <button type="submit" class="btn btn-default">Submit</button>
+    </div>
+</form>
