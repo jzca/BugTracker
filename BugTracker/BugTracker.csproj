@@ -204,6 +204,7 @@
     <Compile Include="Models\Helper\UserRoleHelper.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
+    <Compile Include="Models\ViewModel\AssignTicketViewModel.cs" />
     <Compile Include="Models\ViewModel\AssignProjectViewModel.cs" />
     <Compile Include="Models\ViewModel\AssignRoleManagementViewModel.cs" />
     <Compile Include="Models\ViewModel\AssignRoleViewModel.cs" />
@@ -1856,6 +1857,7 @@
     <Content Include="Views\Ticket\Index.cshtml" />
     <Content Include="Views\Ticket\Edit.cshtml" />
     <Content Include="Views\Ticket\IndexIndividual.cshtml" />
+    <Content Include="Views\Ticket\AssignTicketManagement.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

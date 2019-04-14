@@ -1,0 +1,48 @@
+﻿@model AssignTicketViewModel
+@{
+    ViewBag.Title = "AssignTicketManagement";
+}
+
+@section scripts  {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(function () {
+                $(".btn-assign").on('click', function (e) {
+                    e.preventDefault();
+                    $(this).closest('form').submit();
+                });
+            });
+        });
+    </script>
+}
+
+<h2>Assign Ticket Management</h2>
+
+@*There are no tickets or developers*@
+
+<h5>@Model.TicketTitle</h5>
+@if (Model.MyUser.UserName != null)
+{
+    <div>
+        <div>@Model.MyUser.UserName</div>
+        <div>
+            <form method="post" action="@Url.Action("UnAssign", "Ticket", new { userId = Model.MyUser.Id, tkId = Model.TicketId } )">
+                <a href="#" class="btn-assign">UnAssign</a>
+            </form>
+        </div>
+    </div>
+}
+
+<h5 style="margin-top: 15px">Developers</h5>
+<div>
+    @foreach (var record in Model.Devs)
+    {
+        <div>@record.UserName</div>
+        <div>
+            <form method="post" action="@Url.Action("Assign", "Ticket", new { userId = record.Id, tkId = Model.TicketId } )">
+                <a href="#" class="btn-assign">Assign</a>
+            </form>
+
+        </div>
+    }
+</div>

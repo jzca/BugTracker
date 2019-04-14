@@ -32,26 +32,30 @@ else
                 <th>Created</th>
                 <th>Updated</th>
                 <th></th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
             @foreach (var record in Model)
             {
-                <tr>
-                    <td>@record.Title</td>
-                    <td>@record.ProjectName</td>
-                    <td>@record.TicketType</td>
-                    <td>@record.TicketStatus</td>
-                    <td>@record.TicketPriority</td>
-                    <td>@record.AssignedDev</td>
-                    <td>@record.CreatorName</td>
-                    <td>@record.DateCreated</td>
-                    <td>@record.DateUpdated</td>
-                    <td>
-                        <a href="@Url.Action("Edit", "Ticket", new { id = record.Id })">Edit</a>
-                    </td>
+            <tr>
+                <td>@record.Title</td>
+                <td>@record.ProjectName</td>
+                <td>@record.TicketType</td>
+                <td>@record.TicketStatus</td>
+                <td>@record.TicketPriority</td>
+                <td>@record.AssignedDev</td>
+                <td>@record.CreatorName</td>
+                <td>@record.DateCreated</td>
+                <td>@record.DateUpdated</td>
+                <td>
+                    <a href="@Url.Action("AssignTicketManagement", "Ticket", new {id = record.Id})">Un/Assign</a>
+                </td>
+                <td>
+                    <a href="@Url.Action("Edit", "Ticket", new { id = record.Id })">Edit</a>
+                </td>
 
-                </tr>
+            </tr>
             }
 
         </tbody>

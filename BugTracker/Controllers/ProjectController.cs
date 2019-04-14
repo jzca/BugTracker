@@ -15,7 +15,7 @@ namespace BugTracker.Controllers
     public class ProjectController : Controller
     {
         private ApplicationDbContext DbContext;
-        private UserRoleHelper UserRoleHelper;
+        private readonly UserRoleHelper UserRoleHelper;
 
         public ProjectController()
         {

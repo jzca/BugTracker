@@ -1,5 +1,6 @@
 ﻿using BugTracker.Models;
 using BugTracker.Models.Domain;
+using BugTracker.Models.Helper;
 using BugTracker.Models.ViewModel;
 using Microsoft.AspNet.Identity;
 using System;
@@ -15,10 +16,12 @@ namespace BugTracker.Controllers
     public class TicketController : Controller
     {
         private ApplicationDbContext DbContext;
+        private readonly UserRoleHelper UserRoleHelper;
 
         public TicketController()
         {
             DbContext = new ApplicationDbContext();
+            UserRoleHelper = new UserRoleHelper(DbContext);
         }
 
 
@@ -175,6 +178,122 @@ namespace BugTracker.Controllers
         public ActionResult Edit(int id, CreateEditTicketViewModel formData)
         {
             return SaveTicket(id, formData);
+        }
+
+        [Authorize(Roles = "Admin, Project Manager")]
+        public ActionResult AssignTicketManagement(int? id)
+        {
+            if (!id.HasValue)
+            {
+                return RedirectToAction(nameof(TicketController.Index));
+            }
+
+            //var roleDevId = DbContext.Roles.Where(p => p.Name == "Developer").Select(b => b.Id).FirstOrDefault();
+
+            var allDevs = DbContext.Users.Where(p => p.Roles.Any(b => b.RoleId ==
+            DbContext.Roles.Where(m => m.Name == "Developer").Select(n => n.Id).FirstOrDefault()))
+                .Select(n => new UserProjectViewModel
+                {
+                    Id = n.Id,
+                    UserName = n.UserName
+                }).ToList();
+
+            var ticket = DbContext.Tickets.FirstOrDefault(
+                p => p.Id == id.Value);
+
+            var repeated = new UserProjectViewModel();
+
+            repeated = allDevs.Where(m => m.Id == ticket.AssigneeId).FirstOrDefault();
+            allDevs.Remove(repeated);
+
+
+            if (ticket == null)
+            {
+                return RedirectToAction(nameof(TicketController.Index));
+            }
+
+            var model = new AssignTicketViewModel();
+
+            model.TicketId = ticket.Id;
+            model.TicketTitle = ticket.Title;
+            //model.MyUser.Id = ticket.AssigneeId ?? "No Assignee";
+            if (ticket.AssigneeId != null || ticket.Assignee != null)
+            {
+                model.MyUser = new UserProjectViewModel();
+                model.MyUser.Id = ticket.AssigneeId;
+                model.MyUser.UserName = ticket.Assignee.UserName;
+            }
+            else
+            {
+                model.MyUser = new UserProjectViewModel();
+                model.MyUser.Id = "NoAssigneeId";
+                //model.MyUser.UserName = "No Assignee";
+            }
+
+
+            model.Devs.AddRange(allDevs);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin, Project Manager")]
+        public ActionResult Assign(int tkId, string userId)
+        {
+            //if (!ModelState.IsValid)
+            //{
+            //    return RedirectToAction(nameof(ProjectController.AssignManagement), new { id = pJid });
+            //}
+
+            var ticket = DbContext.Tickets.FirstOrDefault(p => p.Id == tkId);
+            var user = DbContext.Users.FirstOrDefault(p => p.Id == userId);
+
+            //var leftUsers = DbContext.Users
+            //    .Where(p => p.Id != userId)
+            //    .Select(n => new UserProjectViewModel
+            //    {
+            //        Id = n.Id,
+            //        UserName = n.UserName
+            //    }).ToList();
+
+
+            bool freshTicket = true;
+            if (user.AssignedTickets.Any())
+            {
+                freshTicket = user.AssignedTickets.Any(p => p.Id != ticket.Id);
+            }
+
+            if (freshTicket)
+            {
+                user.AssignedTickets.Add(ticket);
+                DbContext.SaveChanges();
+            }
+            //else
+            //{
+            //    ModelState.AddModelError(nameof(ProjectController.AssignManagement),
+            //    "Already Assigned");
+            //}
+
+
+            return RedirectToAction(nameof(TicketController.AssignTicketManagement), new { id = tkId });
+        }
+
+
+        [HttpPost]
+        [Authorize(Roles = "Admin, Project Manager")]
+        public ActionResult UnAssign(int tkId, string userId)
+        {
+            var ticket = DbContext.Tickets.FirstOrDefault(p => p.Id == tkId);
+            var user = DbContext.Users.FirstOrDefault(p => p.Id == userId);
+
+            bool includedTicket = user.AssignedTickets.Any(p => p.Id == ticket.Id);
+            if (includedTicket)
+            {
+                user.AssignedTickets.Remove(ticket);
+                DbContext.SaveChanges();
+            }
+
+            return RedirectToAction(nameof(TicketController.AssignTicketManagement), new { id = tkId });
         }
 
     }
