@@ -181,6 +181,7 @@
     <Compile Include="App_Start\IdentityConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
+    <Compile Include="AttachmentHandler.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
@@ -211,8 +212,12 @@
     <Compile Include="Models\ViewModel\CreateEditProjectViewModel.cs" />
     <Compile Include="Models\ViewModel\CreateEditTicketViewModel.cs" />
     <Compile Include="Models\ViewModel\DropDownTicketViewModel.cs" />
+    <Compile Include="Models\ViewModel\IndexDevAssignedTicketViewModel.cs" />
+    <Compile Include="Models\ViewModel\IndexDevAllTicketViewModel.cs" />
+    <Compile Include="Models\ViewModel\DetailTicketViewModel.cs" />
     <Compile Include="Models\ViewModel\IndexTicketViewModel.cs" />
     <Compile Include="Models\ViewModel\IndexProjectViewModel.cs" />
+    <Compile Include="Models\ViewModel\AttachmentTicketViewModel.cs" />
     <Compile Include="Models\ViewModel\UserForAssignRoleViewModel.cs" />
     <Compile Include="Models\ViewModel\UserProjectViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -1856,8 +1861,12 @@
     <Content Include="Views\Ticket\Create.cshtml" />
     <Content Include="Views\Ticket\Index.cshtml" />
     <Content Include="Views\Ticket\Edit.cshtml" />
-    <Content Include="Views\Ticket\IndexIndividual.cshtml" />
+    <Content Include="Views\Ticket\IndexSubCreated.cshtml" />
     <Content Include="Views\Ticket\AssignTicketManagement.cshtml" />
+    <Content Include="Views\Ticket\IndexDevAssigned.cshtml" />
+    <Content Include="Views\Ticket\Detail.cshtml" />
+    <Content Include="Views\Ticket\IndexDevAll.cshtml" />
+    <Content Include="Views\Ticket\IndexSubAll.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

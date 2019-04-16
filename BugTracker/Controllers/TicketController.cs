@@ -6,6 +6,7 @@ using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity.Validation;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -47,7 +48,36 @@ namespace BugTracker.Controllers
             return View(model);
         }
 
-        public ActionResult IndexIndividual()
+        public ActionResult IndexSubInProjects()
+        {
+            var appUserId = User.Identity.GetUserId();
+            var currentUser = DbContext.Users.Where(i => i.Id == appUserId).FirstOrDefault();
+
+
+            //var allTickets = DbContext.Users.P
+            //    Tickets.ToList();
+
+            //var model = currentUser.Projects.Select( p=> p.Tickets).Select(b => new IndexTicketViewModel
+            //{
+            //    Id = b.Id,
+            //    Title = b.Title,
+            //    AssignedDev = b.Assignee?.DisplayName ?? "Not assgined",
+            //    CreatorName = b.Creator.DisplayName,
+            //    ProjectName = b.Project.Name,
+            //    TicketPriority = b.TicketPriority.Name,
+            //    TicketStatus = b.TicketStatus.Name,
+            //    TicketType = b.TicketType.Name,
+            //    DateCreated = b.DateCreated,
+            //    DateUpdated = b.DateUpdated,
+
+            //}).ToList();
+
+            return View();
+        }
+
+
+
+        public ActionResult IndexSubCreated()
         {
             var appUserId = User.Identity.GetUserId();
             var currentUser = DbContext.Users.Where(i => i.Id == appUserId).FirstOrDefault();
@@ -68,6 +98,131 @@ namespace BugTracker.Controllers
 
             return View(model);
         }
+
+        public ActionResult IndexSubAll()
+        {
+            var appUserId = User.Identity.GetUserId();
+
+            var currentUserDisplayName = DbContext.Users
+                                            .Where(p => p.Id == appUserId)
+                                            .Select(b => b.DisplayName)
+                                            .FirstOrDefault();
+
+            var allTickets = DbContext.Tickets
+                .Where(n => n.Project.Users.Any(m => m.Id == appUserId)
+                || n.CreatorId == appUserId)
+                .ToList();
+
+            var model = allTickets.Select(b => new IndexTicketViewModel
+            {
+                Id = b.Id,
+                Title = b.Title,
+                AssignedDev = b.Assignee?.DisplayName ?? "Not assgined",
+                ProjectName = b.Project.Name,
+                CreatorName = b.Creator.DisplayName,
+                TicketPriority = b.TicketPriority.Name,
+                TicketStatus = b.TicketStatus.Name,
+                TicketType = b.TicketType.Name,
+                DateCreated = b.DateCreated,
+                DateUpdated = b.DateUpdated,
+
+            }).ToList();
+
+
+            foreach (var m in model)
+            {
+                if (m.CreatorName != currentUserDisplayName)
+                {
+                    m.IsCreator = false;
+                }
+                else
+                {
+                    m.IsCreator = true;
+                }
+            }
+
+            return View(model);
+        }
+
+        [Authorize(Roles = "Developer")]
+        public ActionResult IndexDevAssigned()
+        {
+            var appUserId = User.Identity.GetUserId();
+
+            //var currentUser = DbContext.Users.Where(i => i.Id == appUserId).FirstOrDefault();
+
+            //var tickets =DbContext.Projects.Where(p => p.Users.Contains(currentUser))
+            //    .Select(n => n.Tickets).ToList();
+
+            var ticketAssigned = DbContext.Users.Where(i => i.Id == appUserId)
+                .FirstOrDefault().
+                AssignedTickets.ToList();
+
+            var model = ticketAssigned.Select(b => new IndexDevAssignedTicketViewModel
+            {
+                Id = b.Id,
+                Title = b.Title,
+                ProjectName = b.Project.Name,
+                TicketPriority = b.TicketPriority.Name,
+                TicketStatus = b.TicketStatus.Name,
+                TicketType = b.TicketType.Name,
+                DateCreated = b.DateCreated,
+                DateUpdated = b.DateUpdated,
+
+            }).ToList();
+
+            return View(model);
+        }
+
+        [Authorize(Roles = "Developer")]
+        public ActionResult IndexDevAll()
+        {
+            var appUserId = User.Identity.GetUserId();
+
+            var currentUserDisplayName = DbContext.Users
+                                .Where(p => p.Id == appUserId)
+                                .Select(b => b.DisplayName)
+                                .FirstOrDefault();
+
+            var allTickets = DbContext.Tickets
+                .Where(n => n.Project.Users.Any(m => m.Id == appUserId)
+                || n.AssigneeId == appUserId)
+                .ToList();
+
+            //var ticketsBelongMyProject = DbContext.Users.Where(i => i.Id == appUserId).FirstOrDefault()
+            //    .Projects.SelectMany(p => p.Tickets).ToList();
+
+            var model = allTickets.Select(b => new IndexDevAllTicketViewModel
+            {
+                Id = b.Id,
+                Title = b.Title,
+                ProjectName = b.Project.Name,
+                CreatorName = b.Creator.DisplayName,
+                AssigneeName = b.Assignee?.DisplayName ?? "Not assgined",
+                TicketPriority = b.TicketPriority.Name,
+                TicketStatus = b.TicketStatus.Name,
+                TicketType = b.TicketType.Name,
+                DateCreated = b.DateCreated,
+                DateUpdated = b.DateUpdated,
+
+            }).ToList();
+
+            foreach (var m in model)
+            {
+                if (m.AssigneeName != currentUserDisplayName)
+                {
+                    m.IsAssignee = false;
+                }
+                else
+                {
+                    m.IsAssignee = true;
+                }
+            }
+
+
+            return View(model);
+        }
+
 
         [HttpGet]
         [Authorize(Roles = "Submitter")]
@@ -115,16 +270,46 @@ namespace BugTracker.Controllers
             {
                 ticketForSaving = DbContext.Tickets.FirstOrDefault(
                p => p.Id == id);
+
+                if (ticketForSaving == null)
+                {
+                    return RedirectToAction(nameof(TicketController.Index));
+                }
+
+                #region Ownership Check
+
+                bool isAdmin = User.IsInRole("Admin");
+                bool isProjm = User.IsInRole("Project Manager");
+                bool isSubmitter = User.IsInRole("Submitter");
+                bool isDeveloper = User.IsInRole("Developer");
+
+                if (isSubmitter && !(isAdmin || isProjm))
+                {
+                    bool isNotCreator = ticketForSaving.CreatorId != appUserId;
+                    if (isNotCreator)
+                    {
+                        return RedirectToAction(nameof(TicketController.IndexSubAll));
+                    }
+
+                }
+
+                if (isDeveloper && !(isAdmin || isProjm))
+                {
+                    bool isNotAssignee = ticketForSaving.AssigneeId != appUserId;
+
+                    if (isNotAssignee && !(isAdmin || isProjm))
+                    {
+                        return RedirectToAction(nameof(TicketController.IndexDevAll));
+                    }
+
+                }
+                #endregion
+
                 ticketForSaving.DateUpdated = DateTime.Now;
 
                 if (User.IsInRole("Admin") || User.IsInRole("Project Manager"))
                 {
                     ticketForSaving.TicketStatusId = Convert.ToInt32(formData.GetTicketStatus);
-                }
-
-                if (ticketForSaving == null)
-                {
-                    return RedirectToAction(nameof(TicketController.Index));
                 }
             }
 
@@ -140,8 +325,45 @@ namespace BugTracker.Controllers
             return RedirectToAction(nameof(TicketController.Index));
         }
 
+        //private ActionResult OwnershipCheckForEdit(string userId, Ticket ticket)
+        //{
+        //    #region Ownership Check
+
+        //    bool isAdmin = User.IsInRole("Admin");
+        //    bool isProjm = User.IsInRole("Project Manager");
+        //    bool isSubmitter = User.IsInRole("Submitter");
+        //    bool isDeveloper = User.IsInRole("Developer");
+
+        //    if (isSubmitter && !(isAdmin || isProjm))
+        //    {
+        //        bool isNotCreator = ticket.CreatorId != userId;
+        //        if (isNotCreator)
+        //        {
+        //            return RedirectToAction(nameof(TicketController.IndexSubAll));
+        //        }
+
+        //    }
+
+        //    if (isDeveloper && !(isAdmin || isProjm))
+        //    {
+        //        bool isNotAssignee = ticket.AssigneeId != userId;
+
+        //        if (isNotAssignee)
+        //        {
+        //            return RedirectToAction(nameof(TicketController.IndexDevAll));
+        //        }
+
+        //    }
+        //    #endregion
+        //    // End of Check
+
+        //    return RedirectToAction(nameof(TicketController.Index));
+        //}
+
+
+
         [HttpGet]
-        [Authorize(Roles = "Admin, Project Manager, Submitter")]
+        [Authorize(Roles = "Admin, Project Manager, Submitter, Developer")]
         public ActionResult Edit(int? id)
         {
             if (!id.HasValue)
@@ -156,6 +378,38 @@ namespace BugTracker.Controllers
             {
                 return RedirectToAction(nameof(TicketController.Index));
             }
+
+            var appUserId = User.Identity.GetUserId();
+
+            #region Ownership Check
+
+            bool isAdmin = User.IsInRole("Admin");
+            bool isProjm = User.IsInRole("Project Manager");
+            bool isSubmitter = User.IsInRole("Submitter");
+            bool isDeveloper = User.IsInRole("Developer");
+
+            if (isSubmitter && !(isAdmin || isProjm))
+            {
+                bool isNotCreator = ticket.CreatorId != appUserId;
+                if (isNotCreator)
+                {
+                    return RedirectToAction(nameof(TicketController.IndexSubAll));
+                }
+
+            }
+
+            if (isDeveloper && !(isAdmin || isProjm))
+            {
+                bool isNotAssignee = ticket.AssigneeId != appUserId;
+
+                if (isNotAssignee)
+                {
+                    return RedirectToAction(nameof(TicketController.IndexDevAll));
+                }
+
+            }
+            #endregion
+
 
             var model = new CreateEditTicketViewModel();
             model.Title = ticket.Title;
@@ -174,7 +428,7 @@ namespace BugTracker.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin, Project Manager, Submitter")]
+        [Authorize(Roles = "Admin, Project Manager, Submitter, Developer")]
         public ActionResult Edit(int id, CreateEditTicketViewModel formData)
         {
             return SaveTicket(id, formData);
@@ -213,19 +467,18 @@ namespace BugTracker.Controllers
             }
 
             var model = new AssignTicketViewModel();
+            model.MyUser = new UserProjectViewModel();
 
             model.TicketId = ticket.Id;
             model.TicketTitle = ticket.Title;
             //model.MyUser.Id = ticket.AssigneeId ?? "No Assignee";
             if (ticket.AssigneeId != null || ticket.Assignee != null)
             {
-                model.MyUser = new UserProjectViewModel();
                 model.MyUser.Id = ticket.AssigneeId;
                 model.MyUser.UserName = ticket.Assignee.UserName;
             }
             else
             {
-                model.MyUser = new UserProjectViewModel();
                 model.MyUser.Id = "NoAssigneeId";
                 //model.MyUser.UserName = "No Assignee";
             }
@@ -295,6 +548,65 @@ namespace BugTracker.Controllers
 
             return RedirectToAction(nameof(TicketController.AssignTicketManagement), new { id = tkId });
         }
+
+        public ActionResult Detail(int? id)
+        {
+            if (!id.HasValue)
+                return RedirectToAction(nameof(TicketController.Index));
+            var appUserId = User.Identity.GetUserId();
+
+            var ticket = DbContext.Tickets.Where(p => p.Id == id.Value).FirstOrDefault();
+
+            var model = new DetailTicketViewModel();
+
+            model.Id = ticket.Id;
+            model.Title = ticket.Title;
+            model.Description = ticket.Description;
+            model.TicketPriority = ticket.TicketPriority.Name;
+            model.TicketStatus = ticket.TicketStatus.Name;
+            model.TicketType = ticket.TicketType.Name;
+            model.AssignedDev = ticket.Assignee?.DisplayName ?? "None";
+            model.ProjectName = ticket.Project.Name;
+            model.CreatorName = ticket.Creator.DisplayName;
+            model.DateCreated = ticket.DateCreated;
+            model.DateUpdated = ticket.DateUpdated;
+
+            return View(model);
+
+        }
+
+        public ActionResult Attachment(int id)
+        {
+
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Attachment(TicketAttachmentViewModel formData)
+        {
+            ////Handling file upload
+            if (formData.Media != null)
+            {
+                if (!Directory.Exists(AttachmentHandler.MappedUploadFolder))
+                {
+                    Directory.CreateDirectory(AttachmentHandler.MappedUploadFolder);
+                }
+
+                var fileName = formData.Media.FileName;
+                var fullPathWithName = AttachmentHandler.MappedUploadFolder + fileName;
+
+                formData.Media.SaveAs(fullPathWithName);
+
+                //postForSavingPost.MediaUrl = AttachmentHandler.AttachmentSaveFolder + fileName;
+            }
+
+
+            DbContext.SaveChanges();
+
+
+            return View();
+        }
+
 
     }
 }

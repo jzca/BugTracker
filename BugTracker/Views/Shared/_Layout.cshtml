@@ -95,10 +95,16 @@
                         {
                             <a class="collapse-item" href="@Url.Action("Index", "Ticket")">All Tickets</a>
                         }
+                        @if (User.IsInRole("Developer"))
+                        {
+                            <a class="collapse-item" href="@Url.Action("IndexDevAll", "Ticket")">Tickets In Projects</a>
+                            <a class="collapse-item" href="@Url.Action("IndexDevAssigned", "Ticket")">My Tickets</a>
+                        }
                         @if (User.IsInRole("Submitter"))
                         {
-                            <a class="collapse-item" href="@Url.Action("Create", "Ticket")">Create</a>
-                            <a class="collapse-item" href="@Url.Action("IndexIndividual", "Ticket")">My Tickets</a>
+                            <a class="collapse-item" href="@Url.Action("IndexSubAll", "Ticket")">Tickets In Projects</a>
+                            <a class="collapse-item" href="@Url.Action("Create", "Ticket")">Create New Tickets</a>
+                            <a class="collapse-item" href="@Url.Action("IndexSubCreated", "Ticket")">My Tickets</a>
                         }
                     </div>
                 </div>

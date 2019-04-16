@@ -5,11 +5,12 @@ using System.Web;
 
 namespace BugTracker.Models.ViewModel
 {
-    public class IndexTicketViewModel
+    public class DetailTicketViewModel
     {
 
         public int Id { get; set; }
         public string Title { get; set; }
+        public string Description { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime? DateUpdated { get; set; }
         public string AssignedDev { get; set; }
@@ -18,7 +19,6 @@ namespace BugTracker.Models.ViewModel
         public string TicketType { get; set; }
         public string TicketStatus { get; set; }
         public string TicketPriority { get; set; }
-        public bool IsCreator { get; set; }
 
 
     }

@@ -1,8 +1,6 @@
-﻿@model List<IndexTicketViewModel>
+﻿@model List<IndexDevAssignedTicketViewModel>
 @{
-
-    ViewBag.Title = "All Tickets";
-
+    ViewBag.Title = "Tickets assigned to me";
 }
 
 <h2>@ViewBag.Title</h2>
@@ -14,7 +12,7 @@
 @if (!Model.Any())
 {
     <div style="margin-top:15px;">
-        <p><strong>There are no tickets</strong></p>
+        <p><strong>There are no assigned tickets</strong></p>
     </div>
 }
 else
@@ -27,11 +25,8 @@ else
                 <th>Type</th>
                 <th>Status</th>
                 <th>Priority</th>
-                <th>Assigned deveopler</th>
-                <th>Creator</th>
                 <th>Created</th>
                 <th>Updated</th>
-                <th></th>
                 <th></th>
             </tr>
         </thead>
@@ -39,22 +34,13 @@ else
             @foreach (var record in Model)
             {
                 <tr>
-                    <td>
-                        <a href="@Url.Action("Detail", "Ticket", new { id = record.Id })">
-                            @record.Title
-                        </a>
-                    </td>
+                    <td>@record.Title</td>
                     <td>@record.ProjectName</td>
                     <td>@record.TicketType</td>
                     <td>@record.TicketStatus</td>
                     <td>@record.TicketPriority</td>
-                    <td>@record.AssignedDev</td>
-                    <td>@record.CreatorName</td>
                     <td>@record.DateCreated</td>
                     <td>@record.DateUpdated</td>
-                    <td>
-                        <a href="@Url.Action("AssignTicketManagement", "Ticket", new {id = record.Id})">Un/Assign</a>
-                    </td>
                     <td>
                         <a href="@Url.Action("Edit", "Ticket", new { id = record.Id })">Edit</a>
                     </td>
@@ -65,5 +51,4 @@ else
         </tbody>
     </table>
 }
-
 
