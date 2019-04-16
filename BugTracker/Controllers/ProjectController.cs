@@ -36,7 +36,7 @@ namespace BugTracker.Controllers
                     DateCreated = p.DateCreated,
                     DateUpdated = p.DateUpdated,
                     AssignedUsers = p.Users.Count,
-                    Tickets = 0
+                    Tickets = p.Tickets.Count,
                 }).ToList();
 
             return View(model);
@@ -55,7 +55,7 @@ namespace BugTracker.Controllers
                     DateCreated = p.DateCreated,
                     DateUpdated = p.DateUpdated,
                     AssignedUsers = p.Users.Count,
-                    Tickets = 0
+                    Tickets = p.Tickets.Count,
                 }).ToList();
 
             return View(model);

@@ -5,9 +5,6 @@
 
 <h2>@ViewBag.Title</h2>
 
-@section scripts  {
-    <script src="~/resources/js/auto-table.js"></script>
-}
 
 @if (!Model.Any())
 {
@@ -50,7 +47,9 @@ else
                     @if (record.IsAssignee)
                     {
                         <td>
-                            <a href="@Url.Action("Edit", "Ticket", new { id = record.Id })">Edit</a>
+                            <a href="@Url.Action("Edit", "Ticket", new { id = record.Id })">
+                                <i class="fas fa-fw fa-wrench"></i>
+                            </a>
                         </td>
                     }
                     else

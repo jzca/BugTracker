@@ -570,23 +570,44 @@ namespace BugTracker.Controllers
             model.CreatorName = ticket.Creator.DisplayName;
             model.DateCreated = ticket.DateCreated;
             model.DateUpdated = ticket.DateUpdated;
+            model.TicketAttachments = ticket.TicketAttachments;
+            model.TicketComments = ticket.TicketComments;
 
             return View(model);
 
         }
 
-        public ActionResult Attachment(int id)
-        {
+        //[HttpGet]
+        //public ActionResult Attachment(int? id)
+        //{
+        //    if (!id.HasValue || id.HasValue)
+        //    {
+        //        return RedirectToAction(nameof(TicketController.Index));
+        //    }
 
-            return View();
-        }
+        //    return View();
+        //}
 
         [HttpPost]
-        public ActionResult Attachment(TicketAttachmentViewModel formData)
+        public ActionResult Attachment(int id, AttachmentTicketViewModel formData)
         {
-            ////Handling file upload
+            //var ticket = DbContext.Tickets.Where(p => p.Id == id).FirstOrDefault();
+            var appUserId = User.Identity.GetUserId();
+
+            //// Handling file upload
             if (formData.Media != null)
             {
+                //// Validating file upload
+                var fileExtensionForSaving = Path.GetExtension(formData.Media.FileName).ToLower();
+
+                if (!AttachmentHandler.AllowedFileExtensions.Contains(fileExtensionForSaving))
+                {
+                    ModelState.AddModelError("", "File extension is not allowed.");
+                    ViewBag.ErroMsg = "File extension is not allowed.";
+                    return View();
+                }
+
+
                 if (!Directory.Exists(AttachmentHandler.MappedUploadFolder))
                 {
                     Directory.CreateDirectory(AttachmentHandler.MappedUploadFolder);
@@ -596,16 +617,53 @@ namespace BugTracker.Controllers
                 var fullPathWithName = AttachmentHandler.MappedUploadFolder + fileName;
 
                 formData.Media.SaveAs(fullPathWithName);
+                var uploadFile = new TicketAttachment()
+                {
+                    TicketId = id,
+                    CreatorId = appUserId,
+                    FilePath = fullPathWithName,
+                    FileUrl = AttachmentHandler.AttachmentSaveFolder + fileName,
+                    DateCreated = DateTime.Now,
+                    Description = formData.Description
 
-                //postForSavingPost.MediaUrl = AttachmentHandler.AttachmentSaveFolder + fileName;
+                };
+
+                DbContext.TicketAttachments.Add(uploadFile);
             }
 
 
             DbContext.SaveChanges();
 
 
-            return View();
+            return RedirectToAction(nameof(TicketController.Detail), new { id });
         }
+
+
+        [HttpPost]
+        public ActionResult Comment(int id, CommentTicketViewModel formData)
+        {
+
+            var appUserId = User.Identity.GetUserId();
+            var freshComment = new TicketComment()
+            {
+                TicketId = id,
+                Comment = formData.Comment,
+                CreatorId = appUserId,
+                DateCreated = DateTime.Now
+            };
+
+            DbContext.TicketComments.Add(freshComment);
+
+            DbContext.SaveChanges();
+
+            return RedirectToAction(nameof(TicketController.Detail), new { id });
+        }
+
+
+
+
+
+
 
 
     }

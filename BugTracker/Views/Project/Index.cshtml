@@ -5,10 +5,6 @@
 
 <h2>@ViewBag.Title</h2>
 
-@section scripts  {
-    <script src="~/resources/js/auto-table.js"></script>
-}
-
 <a class="btn btn-primary" href="@Url.Action("Create", "Project")"
    style="margin-top: 10px; margin-bottom: 15px;">Create new projects</a>
 <br />
@@ -43,10 +39,14 @@ else
                     <td>@record.AssignedUsers</td>
                     <td>@record.Tickets</td>
                     <td>
-                        <a href="@Url.Action("AssignProjectManagement", "Project", new {id = record.Id})">Un/Assign</a>
+                        <a href="@Url.Action("AssignProjectManagement", "Project", new {id = record.Id})">
+                            <i class="fas fa-user-edit"></i>
+                        </a>
                     </td>
                     <td>
-                        <a href="@Url.Action("Edit", "Project", new { id = record.Id })">Edit</a>
+                        <a href="@Url.Action("Edit", "Project", new { id = record.Id })">
+                            <i class="fas fa-fw fa-wrench"></i>
+                        </a>
                     </td>
 
                 </tr>

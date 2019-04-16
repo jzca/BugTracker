@@ -1,15 +1,10 @@
 ﻿@model  List<IndexProjectViewModel>
 @{
-                /**/
-
-                ViewBag.Title = "My Projects";
+    ViewBag.Title = "My Projects";
 }
 
 <h2>@ViewBag.Title</h2>
 
-@section scripts  {
-    <script src="~/resources/js/auto-table.js"></script>
-}
 
 @if (!Model.Any())
 {

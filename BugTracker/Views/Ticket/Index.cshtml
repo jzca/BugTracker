@@ -7,10 +7,6 @@
 
 <h2>@ViewBag.Title</h2>
 
-@section scripts  {
-    <script src="~/resources/js/auto-table.js"></script>
-}
-
 @if (!Model.Any())
 {
     <div style="margin-top:15px;">
@@ -53,10 +49,14 @@ else
                     <td>@record.DateCreated</td>
                     <td>@record.DateUpdated</td>
                     <td>
-                        <a href="@Url.Action("AssignTicketManagement", "Ticket", new {id = record.Id})">Un/Assign</a>
+                        <a href="@Url.Action("AssignTicketManagement", "Ticket", new {id = record.Id})">
+                            <i class="fas fa-user-edit"></i>
+                        </a>
                     </td>
                     <td>
-                        <a href="@Url.Action("Edit", "Ticket", new { id = record.Id })">Edit</a>
+                        <a href="@Url.Action("Edit", "Ticket", new { id = record.Id })">
+                            <i class="fas fa-fw fa-wrench"></i>
+                        </a>
                     </td>
 
                 </tr>

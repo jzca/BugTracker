@@ -7,8 +7,8 @@ namespace BugTracker
 {
     public class AttachmentHandler
     {
-        //public static readonly List<string> AllowedFileExtensions =
-        //    new List<string> { ".jpg", ".jpeg", ".png", "gif" };
+        public static readonly List<string> AllowedFileExtensions =
+            new List<string> { ".jpg", ".jpeg", ".png", "gif","pdf","doc" };
 
         public static readonly string AttachmentSaveFolder = "~/FilesSaved/";
 

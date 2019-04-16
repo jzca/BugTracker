@@ -22,3 +22,7 @@ select,
 textarea {
     max-width: 280px;
 }
+
+.give-space{
+    margin: 10px 5px;
+}

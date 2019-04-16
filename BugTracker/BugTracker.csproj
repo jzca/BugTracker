@@ -209,6 +209,7 @@
     <Compile Include="Models\ViewModel\AssignProjectViewModel.cs" />
     <Compile Include="Models\ViewModel\AssignRoleManagementViewModel.cs" />
     <Compile Include="Models\ViewModel\AssignRoleViewModel.cs" />
+    <Compile Include="Models\ViewModel\AttachmentTicketViewModel.cs" />
     <Compile Include="Models\ViewModel\CreateEditProjectViewModel.cs" />
     <Compile Include="Models\ViewModel\CreateEditTicketViewModel.cs" />
     <Compile Include="Models\ViewModel\DropDownTicketViewModel.cs" />
@@ -217,7 +218,7 @@
     <Compile Include="Models\ViewModel\DetailTicketViewModel.cs" />
     <Compile Include="Models\ViewModel\IndexTicketViewModel.cs" />
     <Compile Include="Models\ViewModel\IndexProjectViewModel.cs" />
-    <Compile Include="Models\ViewModel\AttachmentTicketViewModel.cs" />
+    <Compile Include="Models\ViewModel\CommentTicketViewModel.cs" />
     <Compile Include="Models\ViewModel\UserForAssignRoleViewModel.cs" />
     <Compile Include="Models\ViewModel\UserProjectViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -1867,6 +1868,7 @@
     <Content Include="Views\Ticket\Detail.cshtml" />
     <Content Include="Views\Ticket\IndexDevAll.cshtml" />
     <Content Include="Views\Ticket\IndexSubAll.cshtml" />
+    <Content Include="Views\Ticket\Attachment.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

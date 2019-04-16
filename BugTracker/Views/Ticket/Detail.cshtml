@@ -3,6 +3,18 @@
     ViewBag.Title = "Detail";
 }
 
+@section css  {
+    <style>
+        .give-space {
+            margin: 10px 5px;
+        }
+
+        .give-space-2 {
+            margin: 5px;
+        }
+    </style>
+}
+
 @section scripts  {
     <script type="text/javascript">
         $(document).ready(function () {
@@ -10,6 +22,14 @@
                 $(".add-file").on('click', function (e) {
                     e.preventDefault();
                     $(".upload-file").toggle();
+                });
+            });
+        });
+        $(document).ready(function () {
+            $(function () {
+                $(".add-comment").on('click', function (e) {
+                    e.preventDefault();
+                    $(".post-comment").toggle();
                 });
             });
         });
@@ -27,7 +47,7 @@
 }
 else
 {
-    <table class="table table-striped table-auto-sort">
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th>Ticket title</th>
@@ -53,7 +73,6 @@ else
                 <td>@Model.DateCreated</td>
                 <td>@Model.DateUpdated</td>
             </tr>
-
         </tbody>
     </table>
 
@@ -68,22 +87,154 @@ else
 
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Attachment</h6>
+            <h6 class="m-0 font-weight-bold text-primary">Attachments</h6>
         </div>
         <div class="card-body">
+            @if (Model.TicketAttachments.Any())
+            {
+
+                <table class="table table-striped table-auto-sort">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>FileUrl</th>
+                            <th>Uploader</th>
+                            <th>Date Uploaded</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var file in Model.TicketAttachments)
+                        {
+                            <tr>
+                                <td>@file.Description</td>
+                                <td>
+                                    <a href="@Url.Content(file.FileUrl)"
+                                       target="_blank">
+                                        @file.FileUrl
+                                    </a>
+                                </td>
+                                <th>@file.Creator.DisplayName</th>
+                                <th>@file.DateCreated</th>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                @*foreach (var file in Model.TicketAttachments)
+                    {
+                        <a href="@Url.Content(file.FileUrl)"
+                           target="_blank">
+                            <h5>@file.Description</h5>
+                        </a>
+                    }*@
+            }
+
+            <div class="add-file give-space-2">
+                <i class="fas fa-upload fa-2x"></i>
+            </div>
         </div>
-        <button class=" btn-primary add-file">Add</button>
     </div>
 
-    using (Html.BeginForm("Attachment", "Ticket", FormMethod.Post,
+    <div class="card shadow mb-4 upload-file" style="display: none">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Upload a file</h6>
+        </div>
+        @using (Html.BeginForm("Attachment", "Ticket", new { id = Model.Id }, FormMethod.Post,
         new
         {
-            style = "display: none",
-            @class = "upload-file",
+            @class = "card-body",
             enctype = "multipart/form-data"
         }))
-    {
-        <input type="file" name="Media" style="font-size:15px;" />
-    }
+        {
+            @Html.ValidationSummary(false)
+            <div>
+                <input type="text" name="Description" class="give-space form-control col-md-2" />
+            </div>
+            <div>
+                <input type="file" name="Media" style="font-size:15px;" class="give-space" />
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary give-space">Upload</button>
+            </div>
+        }
+    </div>
+
+
+
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Comments</h6>
+        </div>
+        <div class="card-body">
+            @if (Model.TicketComments.Any())
+            {
+
+                <table class="table table-striped table-auto-sort">
+                    <thead>
+                        <tr>
+                            <th>Comment</th>
+                            <th>Creator</th>
+                            <th>Date Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var cm in Model.TicketComments)
+                        {
+                            <tr>
+                                <td>@cm.Comment</td>
+                                <td>@cm.Creator.DisplayName</td>
+                                <td>@cm.DateCreated</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+
+            <div class="add-comment">
+                <i class="fas fa-comment-dots fa-2x"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4 post-comment" style="display: none">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Post a Comment</h6>
+        </div>
+        @using (Html.BeginForm("Comment", "Ticket", new { id = Model.Id }, FormMethod.Post,
+        new
+        {
+            @class = "card-body",
+        }))
+        {
+            @Html.ValidationSummary(false)
+            <div>
+                <input type="text" name="Comment" class="give-space form-control col-md-2" />
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary give-space">Post</button>
+            </div>
+        }
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
+
+
