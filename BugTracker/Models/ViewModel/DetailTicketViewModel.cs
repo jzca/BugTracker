@@ -33,6 +33,8 @@ namespace BugTracker.Models.ViewModel
         public virtual List<TicketComment> TicketComments { get; set; }
         public virtual List<TicketAttachment> TicketAttachments { get; set; }
 
+        public bool AreYouOwner { get; set; }
+
 
     }
 }

@@ -25,7 +25,7 @@ namespace BugTracker.Controllers
             UserRoleHelper = new UserRoleHelper(DbContext);
         }
 
-
+        [Authorize(Roles = "Admin")]
         public ActionResult Index()
         {
             var allTickets = DbContext.Tickets.ToList();
@@ -48,7 +48,7 @@ namespace BugTracker.Controllers
             return View(model);
         }
 
-
+        [Authorize(Roles = "Submitter")]
         public ActionResult IndexSubCreated()
         {
             var appUserId = User.Identity.GetUserId();
@@ -71,6 +71,7 @@ namespace BugTracker.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Submitter")]
         public ActionResult IndexSubAll()
         {
             var appUserId = User.Identity.GetUserId();
@@ -237,8 +238,8 @@ namespace BugTracker.Controllers
                 ticketForSaving.DateCreated = DateTime.Now;
                 ticketForSaving.CreatorId = appUserId;
                 ticketForSaving.TicketStatusId = DbContext.TicketStatuses
-                    .Where( p=> p.Name== TicketEnum.Status.Open.ToString())
-                    .Select(b=> b.Id).FirstOrDefault();
+                    .Where(p => p.Name == TicketEnum.Status.Open.ToString())
+                    .Select(b => b.Id).FirstOrDefault();
                 DbContext.Tickets.Add(ticketForSaving);
             }
             else
@@ -295,67 +296,6 @@ namespace BugTracker.Controllers
             return RedirectToAction(nameof(TicketController.Index));
         }
 
-        private bool IsAdmin() { return User.IsInRole("Admin"); }
-        private bool IsProjectManager() { return User.IsInRole("Project Manager"); }
-        private bool IsSubmitter() { return User.IsInRole("Submitter"); }
-        private bool IsDeveloper() { return User.IsInRole("Developer"); }
-
-        private string OwnershipCheckEdit(string userId, Ticket ticket)
-        {
-            bool isAdmin = IsAdmin();
-            bool isProjm = IsProjectManager();
-            bool isSubmitter = IsSubmitter();
-            bool isDeveloper = IsDeveloper();
-
-            bool isNotCreator = ticket.CreatorId != userId;
-            bool isNotAssignee = ticket.AssigneeId != userId;
-
-            if(!isAdmin || !isProjm)
-            {
-                if (isNotCreator && isNotAssignee)
-                {
-                    if (isSubmitter && isNotCreator)
-                    {
-                        return nameof(TicketController.IndexSubAll);
-                    }
-
-                    if (isDeveloper && isNotAssignee)
-                    {
-                        return nameof(TicketController.IndexDevAll);
-                    }
-                }
-            }
-            return null;
-        }
-
-        private string OwnershipCheckDetail(string userId, Ticket ticket)
-        {
-            bool isAdmin = IsAdmin();
-            bool isProjm = IsProjectManager();
-            bool isSubmitter = IsSubmitter();
-            bool isDeveloper = IsDeveloper();
-
-            bool isNotCreator = ticket.CreatorId != userId;
-            bool isNotAssignee = ticket.AssigneeId != userId;
-
-            if (isNotCreator && isNotAssignee)
-            {
-                if (isSubmitter && !(isAdmin || isProjm) && isNotCreator)
-                {
-                    return nameof(TicketController.IndexSubAll);
-                }
-
-                if (isDeveloper && !(isAdmin || isProjm) && isNotAssignee)
-                {
-                    return nameof(TicketController.IndexDevAll);
-                }
-
-            }
-
-            return null;
-        }
-
-
 
         [HttpGet]
         [Authorize(Roles = "Admin, Project Manager, Submitter, Developer")]
@@ -377,13 +317,13 @@ namespace BugTracker.Controllers
             var appUserId = User.Identity.GetUserId();
 
             // Check OwnerShip
-            var result=OwnershipCheckEdit(appUserId, ticket);
+            var result = OwnershipCheckEdit(appUserId, ticket);
 
-            if(result == nameof(TicketController.IndexSubAll))
+            if (result == nameof(TicketController.IndexSubAll))
             {
                 return RedirectToAction(nameof(TicketController.IndexSubAll));
             }
-            else if (result== nameof(TicketController.IndexDevAll))
+            else if (result == nameof(TicketController.IndexDevAll))
             {
                 return RedirectToAction(nameof(TicketController.IndexDevAll));
             }
@@ -553,7 +493,7 @@ namespace BugTracker.Controllers
             }
 
             // Check OwnerShip
-            var result = OwnershipCheckEdit(appUserId, ticket);
+            var result = OwnershipCheckDetail(appUserId, ticket);
 
             if (result == nameof(TicketController.IndexSubAll))
             {
@@ -563,6 +503,9 @@ namespace BugTracker.Controllers
             {
                 return RedirectToAction(nameof(TicketController.IndexDevAll));
             }
+
+            bool isNotCreator = ticket.CreatorId != appUserId;
+            bool isNotAssignee = ticket.AssigneeId != appUserId;
 
             var model = new DetailTicketViewModel();
 
@@ -579,6 +522,16 @@ namespace BugTracker.Controllers
             model.DateUpdated = ticket.DateUpdated;
             model.TicketAttachments = ticket.TicketAttachments;
             model.TicketComments = ticket.TicketComments;
+
+
+            if (isNotCreator && isNotAssignee)
+            {
+                model.AreYouOwner = false;
+            }
+            else
+            {
+                model.AreYouOwner = true;
+            }
 
             return View(model);
 
@@ -665,7 +618,7 @@ namespace BugTracker.Controllers
             var appUserId = User.Identity.GetUserId();
 
             // Check OwnerShip
-            var result = OwnershipCheckDetail(appUserId, ticket);
+            var result = OwnershipCheckEdit(appUserId, ticket);
 
             if (result == nameof(TicketController.IndexSubAll))
             {
@@ -690,6 +643,83 @@ namespace BugTracker.Controllers
 
             return RedirectToAction(nameof(TicketController.Detail), new { id });
         }
+
+        private bool IsAdmin() { return User.IsInRole("Admin"); }
+        private bool IsProjectManager() { return User.IsInRole("Project Manager"); }
+        private bool IsSubmitter() { return User.IsInRole("Submitter"); }
+        private bool IsDeveloper() { return User.IsInRole("Developer"); }
+
+        private string OwnershipCheckEdit(string userId, Ticket ticket)
+        {
+            bool isAdmin = IsAdmin();
+            bool isProjm = IsProjectManager();
+
+            if (!isAdmin || !isProjm)
+            {
+                bool isSubmitter = IsSubmitter();
+                bool isDeveloper = IsDeveloper();
+
+                bool isNotCreator = ticket.CreatorId != userId;
+                bool isNotAssignee = ticket.AssigneeId != userId;
+
+                if (isNotCreator && isNotAssignee)
+                {
+                    if (isSubmitter && isNotCreator)
+                    {
+                        return nameof(TicketController.IndexSubAll);
+                    }
+
+                    if (isDeveloper && isNotAssignee)
+                    {
+                        return nameof(TicketController.IndexDevAll);
+                    }
+                }
+            }
+            return null;
+        }
+
+        private string OwnershipCheckDetail(string userId, Ticket ticket)
+        {
+
+            bool isAdmin = IsAdmin();
+            bool isProjm = IsProjectManager();
+
+            if (!isAdmin || !isProjm)
+            {
+                bool isSubmitter = IsSubmitter();
+                bool isDeveloper = IsDeveloper();
+
+                bool isNotCreator = ticket.CreatorId != userId;
+                bool isNotAssignee = ticket.AssigneeId != userId;
+
+                bool hasThisTicket = DbContext.Projects
+                        .Any(p => p.Users.Any(b => b.Id == userId)
+                        && p.Tickets.Any(c => c.Id == ticket.Id)
+                        );
+
+                if (isNotCreator && isNotAssignee)
+                {
+                    if (!hasThisTicket)
+                    {
+                        if (isSubmitter)
+                        {
+                            return nameof(TicketController.IndexSubAll);
+                        }
+
+                        if (isDeveloper)
+                        {
+                            return nameof(TicketController.IndexDevAll);
+                        }
+                    }
+
+                }
+            }
+
+            return null;
+        }
+
+
+
 
 
 

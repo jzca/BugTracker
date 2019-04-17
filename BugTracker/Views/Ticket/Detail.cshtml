@@ -119,45 +119,45 @@ else
                         }
                     </tbody>
                 </table>
-
-                @*foreach (var file in Model.TicketAttachments)
-                    {
-                        <a href="@Url.Content(file.FileUrl)"
-                           target="_blank">
-                            <h5>@file.Description</h5>
-                        </a>
-                    }*@
             }
 
-            <div class="add-file give-space-2">
-                <i class="fas fa-upload fa-2x"></i>
-            </div>
+            @if (Model.AreYouOwner)
+            {
+                <div class="add-file give-space-2">
+                    <i class="fas fa-upload fa-2x"></i>
+                </div>
+            }
+
         </div>
     </div>
 
-    <div class="card shadow mb-4 upload-file" style="display: none">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Upload a file</h6>
+    if (Model.AreYouOwner)
+    {
+        <div class="card shadow mb-4 upload-file" style="display: none">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Upload a file</h6>
+            </div>
+            @using (Html.BeginForm("Attachment", "Ticket", new { id = Model.Id }, FormMethod.Post,
+            new
+            {
+                @class = "card-body",
+                enctype = "multipart/form-data"
+            }))
+            {
+                @Html.ValidationSummary(false)
+                <div>
+                    <input type="text" name="Description" class="give-space form-control col-md-2" />
+                </div>
+                <div>
+                    <input type="file" name="Media" style="font-size:15px;" class="give-space" />
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary give-space">Upload</button>
+                </div>
+            }
         </div>
-        @using (Html.BeginForm("Attachment", "Ticket", new { id = Model.Id }, FormMethod.Post,
-        new
-        {
-            @class = "card-body",
-            enctype = "multipart/form-data"
-        }))
-        {
-            @Html.ValidationSummary(false)
-            <div>
-                <input type="text" name="Description" class="give-space form-control col-md-2" />
-            </div>
-            <div>
-                <input type="file" name="Media" style="font-size:15px;" class="give-space" />
-            </div>
-            <div>
-                <button type="submit" class="btn btn-primary give-space">Upload</button>
-            </div>
-        }
-    </div>
+    }
+
 
 
 
@@ -191,31 +191,39 @@ else
                 </table>
             }
 
-            <div class="add-comment">
-                <i class="fas fa-comment-dots fa-2x"></i>
-            </div>
+            @if (Model.AreYouOwner)
+            {
+                <div class="add-comment">
+                    <i class="fas fa-comment-dots fa-2x"></i>
+                </div>
+            }
+
         </div>
     </div>
 
-    <div class="card shadow mb-4 post-comment" style="display: none">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Post a Comment</h6>
+    if (Model.AreYouOwner)
+    {
+        <div class="card shadow mb-4 post-comment" style="display: none">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Post a Comment</h6>
+            </div>
+            @using (Html.BeginForm("Comment", "Ticket", new { id = Model.Id }, FormMethod.Post,
+            new
+            {
+                @class = "card-body",
+            }))
+            {
+                @Html.ValidationSummary(false)
+                <div>
+                    <input type="text" name="Comment" class="give-space form-control col-md-2" />
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary give-space">Post</button>
+                </div>
+            }
         </div>
-        @using (Html.BeginForm("Comment", "Ticket", new { id = Model.Id }, FormMethod.Post,
-        new
-        {
-            @class = "card-body",
-        }))
-        {
-            @Html.ValidationSummary(false)
-            <div>
-                <input type="text" name="Comment" class="give-space form-control col-md-2" />
-            </div>
-            <div>
-                <button type="submit" class="btn btn-primary give-space">Post</button>
-            </div>
-        }
-    </div>
+    }
+
 
 
 
