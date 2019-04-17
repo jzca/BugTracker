@@ -1813,7 +1813,6 @@
     <Content Include="resources\vendor\jquery\jquery.min.js" />
     <Content Include="resources\vendor\jquery\jquery.slim.js" />
     <Content Include="resources\vendor\jquery\jquery.slim.min.js" />
-    <None Include="Views\Account\Login-test.cshtml" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -1868,7 +1867,7 @@
     <Content Include="Views\Ticket\Detail.cshtml" />
     <Content Include="Views\Ticket\IndexDevAll.cshtml" />
     <Content Include="Views\Ticket\IndexSubAll.cshtml" />
-    <Content Include="Views\Ticket\Attachment.cshtml" />
+    <Content Include="Views\Ticket\ErroMsg.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -17,6 +17,15 @@
         @Html.LabelFor(p => p.Description, "Description")
         @Html.TextAreaFor(p => p.Description, new { @class = "form-control", placeholder = "description" })
     </div>
+
+    <div class="form-group">
+        @Html.LabelFor(p => p.GetProjectBelong, "Project")
+        @Html.DropDownListFor(p => p.GetProjectBelong, (SelectList)Model.ProjectBelong,
+                                  "Select a Project",
+                                  new { @class = "form-control" }
+                              )
+    </div>
+
     <div class="form-group">
         @Html.LabelFor(p => p.GetTicketType, "Type")
         @Html.DropDownListFor(p => p.GetTicketType, (SelectList)Model.TicketType,
@@ -49,3 +58,7 @@
     </div>
 
 </form>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

@@ -31,7 +31,11 @@ else
             @foreach (var record in Model)
             {
                 <tr>
-                    <td>@record.Title</td>
+                    <td>
+                        <a href="@Url.Action("Detail", "Ticket", new { id = record.Id })">
+                            @record.Title
+                        </a>
+                    </td>
                     <td>@record.ProjectName</td>
                     <td>@record.TicketType</td>
                     <td>@record.TicketStatus</td>

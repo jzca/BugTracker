@@ -24,22 +24,22 @@ namespace BugTracker.Migrations
         {
 
             context.TicketPriorities.AddOrUpdate(p => p.Name,
-                new TicketPriority { Name = "Low" },
-                new TicketPriority { Name = "Medium" },
-                new TicketPriority { Name = "High" }
-                );
+                            new TicketPriority { Name = TicketEnum.Priority.Low.ToString() },
+                            new TicketPriority { Name = TicketEnum.Priority.Medium.ToString() },
+                            new TicketPriority { Name = TicketEnum.Priority.High.ToString() }
+                            );
 
             context.TicketStatuses.AddOrUpdate(p => p.Name,
-                        new TicketStatus { Name = "Open" },
-                        new TicketStatus { Name = "Resolved" },
-                        new TicketStatus { Name = "Rejected" }
+                        new TicketStatus { Name = TicketEnum.Status.Open.ToString() },
+                        new TicketStatus { Name = TicketEnum.Status.Rejected.ToString() },
+                        new TicketStatus { Name = TicketEnum.Status.Resolved.ToString() }
                         );
 
             context.TicketTypes.AddOrUpdate(p => p.Name,
-                        new TicketType { Name = "Bug" },
-                        new TicketType { Name = "Feature" },
-                        new TicketType { Name = "Database" },
-                        new TicketType { Name = "Support" }
+                        new TicketType { Name = TicketEnum.Type.Bug.ToString() },
+                        new TicketType { Name = TicketEnum.Type.Database.ToString() },
+                        new TicketType { Name = TicketEnum.Type.Feature.ToString() },
+                        new TicketType { Name = TicketEnum.Type.Support.ToString() }
                         );
 
             //Seeding Users and Roles
@@ -106,6 +106,83 @@ namespace BugTracker.Migrations
                 userManager.AddToRole(adminUser.Id, "Admin");
             }
 
+            //Creating the subUser
+            ApplicationUser subUser;
+
+            if (!context.Users.Any(
+                p => p.UserName == "sub@mybugtracker.com"))
+            {
+                subUser = new ApplicationUser();
+                subUser.UserName = "sub@mybugtracker.com";
+                subUser.Email = "sub@mybugtracker.com";
+                subUser.DisplayName = subUser.Email.Split('@')[0];
+
+                userManager.Create(subUser, "Password-1");
+            }
+            else
+            {
+                subUser = context
+                    .Users
+                    .First(p => p.UserName == "sub@mybugtracker.com");
+            }
+
+            //Make sure the user is on the sub role
+            if (!userManager.IsInRole(subUser.Id, "Submitter"))
+            {
+                userManager.AddToRole(subUser.Id, "Submitter");
+            }
+
+            //Creating the devUser
+            ApplicationUser devUser;
+
+            if (!context.Users.Any(
+                p => p.UserName == "dev@mybugtracker.com"))
+            {
+                devUser = new ApplicationUser();
+                devUser.UserName = "dev@mybugtracker.com";
+                devUser.Email = "dev@mybugtracker.com";
+                devUser.DisplayName = devUser.Email.Split('@')[0];
+
+                userManager.Create(devUser, "Password-1");
+            }
+            else
+            {
+                devUser = context
+                    .Users
+                    .First(p => p.UserName == "dev@mybugtracker.com");
+            }
+
+            //Make sure the user is on the dev role
+            if (!userManager.IsInRole(devUser.Id, "Developer"))
+            {
+                userManager.AddToRole(devUser.Id, "Developer");
+            }
+
+            //Creating the pmUser
+            ApplicationUser pmUser;
+
+            if (!context.Users.Any(
+                p => p.UserName == "pm@mybugtracker.com"))
+            {
+                pmUser = new ApplicationUser();
+                pmUser.UserName = "pm@mybugtracker.com";
+                pmUser.Email = "pm@mybugtracker.com";
+                pmUser.DisplayName = pmUser.Email.Split('@')[0];
+
+                userManager.Create(pmUser, "Password-1");
+            }
+            else
+            {
+                pmUser = context
+                    .Users
+                    .First(p => p.UserName == "pm@mybugtracker.com");
+            }
+
+            //Make sure the user is on the pm role
+            if (!userManager.IsInRole(pmUser.Id, "Project Manager"))
+            {
+                userManager.AddToRole(pmUser.Id, "Project Manager");
+            }
 
 
 
@@ -115,24 +192,3 @@ namespace BugTracker.Migrations
         }
     }
 }
-
-
-//context.TicketPriorities.AddOrUpdate(p => p.Name,
-//                new TicketPriority { Name = TicketEnum.Priority.Low.ToString() },
-//                new TicketPriority { Name = TicketEnum.Priority.Medium.ToString() },
-//                new TicketPriority { Name = TicketEnum.Priority.High.ToString() }
-//                );
-
-//            context.TicketStatuses.AddOrUpdate(p => p.Name,
-//                        new TicketStatus { Name = TicketEnum.Status.Open.ToString() },
-//                        new TicketStatus { Name = TicketEnum.Status.Rejected.ToString() },
-//                        new TicketStatus { Name = TicketEnum.Status.Resolved.ToString() }
-//                        );
-
-//            context.TicketTypes.AddOrUpdate(p => p.Name,
-//                        new TicketType { Name = TicketEnum.Type.Bug.ToString() },
-//                        new TicketType { Name = TicketEnum.Type.Database.ToString() },
-//                        new TicketType { Name = TicketEnum.Type.Feature.ToString() },
-//                        new TicketType { Name = TicketEnum.Type.Support.ToString() }
-//                        );
-

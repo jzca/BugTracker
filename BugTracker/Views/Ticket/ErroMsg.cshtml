@@ -1,0 +1,15 @@
+﻿@{
+    ViewBag.Title = "Erro Page";
+}
+
+@if (ViewBag.ErroMsg != null)
+{
+    <h1 class="text-danger">Error</h1>
+    <h2 class="text-danger">@ViewBag.ErroMsg</h2>
+}
+@if(ViewBag.ErroMsg2 != null)
+{
+    <h2 class="text-danger">@ViewBag.ErroMsg2</h2>
+}
+
+
