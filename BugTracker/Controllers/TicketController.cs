@@ -223,9 +223,36 @@ namespace BugTracker.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.ErroMsg = "An error occurred while processing your request.";
-                ViewBag.ErroMsg2 = "Did you froget or miss something?";
-                return View("ErroMsg");
+                var thisUserId = User.Identity.GetUserId();
+                var holdPjts = DbContext.Projects.Where(p => p.Users.Any(m => m.Id == thisUserId)).ToList();
+                var model = new CreateEditTicketViewModel();
+                model.ProjectBelong = new SelectList(holdPjts, "Id", "Name");
+                model.TicketType = new SelectList(DbContext.TicketTypes, "Id", "Name");
+                model.TicketPriority = new SelectList(DbContext.TicketPriorities, "Id", "Name");
+
+                if (IsAdmin() || IsProjectManager())
+                {
+                    var allPjts = DbContext.Projects.ToList();
+                    model.ProjectBelong = new SelectList(allPjts, "Id", "Name");
+                    model.TicketStatus = new SelectList(DbContext.TicketStatuses, "Id", "Name");
+
+                }
+                else
+                {
+                    model.ProjectBelong = new SelectList(holdPjts, "Id", "Name");
+                }
+
+                if (id.HasValue)
+                {
+                    var thisTicket = DbContext.Tickets.FirstOrDefault(
+                                        p => p.Id == id);
+                    model.GetTicketStatus = Convert.ToString(thisTicket.TicketStatusId);
+                    model.GetProjectBelong = Convert.ToString(thisTicket.ProjectId);
+                    model.GetTicketType = Convert.ToString(thisTicket.TicketTypeId);
+                    model.GetTicketPriority= Convert.ToString(thisTicket.TicketPriorityId);
+                }
+
+
             }
 
             var appUserId = User.Identity.GetUserId();
