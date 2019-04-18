@@ -376,7 +376,7 @@ namespace BugTracker.Controllers
             {
                 return RedirectToAction(nameof(TicketController.Index));
             }
-         
+
 
             var allDevs = DbContext.Users.Where(p => p.Roles.Any(b => b.RoleId ==
             DbContext.Roles.Where(m => m.Name == "Developer").Select(n => n.Id).FirstOrDefault()))
@@ -759,14 +759,14 @@ namespace BugTracker.Controllers
             model.DateUpdated = ticket.DateUpdated;
             model.TicketAttachments = ticket.TicketAttachments;
             model.TicketComments = ticket.TicketComments;
+            model.AreYouOwner = true;
 
-            if (isNotCreator && isNotAssignee)
+            if (!IsAdmin() || !IsProjectManager())
             {
-                model.AreYouOwner = false;
-            }
-            else
-            {
-                model.AreYouOwner = true;
+                if (isNotCreator && isNotAssignee)
+                {
+                    model.AreYouOwner = false;
+                }
             }
 
             return model;

@@ -14,58 +14,60 @@
 }
 else
 {
-    <table class="table table-striped table-auto-sort">
-        <thead>
-            <tr>
-                <th>Ticket title</th>
-                <th>Project name</th>
-                <th>Creator</th>
-                <th>Assignee</th>
-                <th>Type</th>
-                <th>Status</th>
-                <th>Priority</th>
-                <th>Created</th>
-                <th>Updated</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var record in Model)
-            {
+    <div class="table-responsive">
+        <table class="table table-striped table-auto-sort">
+            <thead>
                 <tr>
+                    <th>Ticket title</th>
+                    <th>Project name</th>
+                    <th>Creator</th>
+                    <th>Assignee</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Created</th>
+                    <th>Updated</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var record in Model)
+                {
+                    <tr>
 
-                    <td>
-                        <a href="@Url.Action("Detail", "Ticket", new { id = record.Id })">
-                            @record.Title
-                        </a>
-                    </td>
-                    <td>@record.ProjectName</td>
-                    <td>@record.CreatorName</td>
-                    <td>@record.AssigneeName</td>
-                    <td>@record.TicketType</td>
-                    <td>@record.TicketStatus</td>
-                    <td>@record.TicketPriority</td>
-                    <td>@record.DateCreated</td>
-                    <td>@record.DateUpdated</td>
-
-                    @if (record.IsAssignee)
-                    {
                         <td>
-                            <a href="@Url.Action("Edit", "Ticket", new { id = record.Id })">
-                                <i class="fas fa-fw fa-wrench"></i>
+                            <a href="@Url.Action("Detail", "Ticket", new { id = record.Id })">
+                                @record.Title
                             </a>
                         </td>
-                    }
-                    else
-                    {
-                        <td>&nbsp</td>
-                    }
+                        <td>@record.ProjectName</td>
+                        <td>@record.CreatorName</td>
+                        <td>@record.AssigneeName</td>
+                        <td>@record.TicketType</td>
+                        <td>@record.TicketStatus</td>
+                        <td>@record.TicketPriority</td>
+                        <td>@record.DateCreated</td>
+                        <td>@record.DateUpdated</td>
 
-                </tr>
-            }
+                        @if (record.IsAssignee)
+                        {
+                            <td>
+                                <a href="@Url.Action("Edit", "Ticket", new { id = record.Id })">
+                                    <i class="fas fa-fw fa-wrench"></i>
+                                </a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td>&nbsp</td>
+                        }
 
-        </tbody>
-    </table>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
 }
 
 
