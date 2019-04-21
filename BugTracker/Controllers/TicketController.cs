@@ -25,7 +25,7 @@ namespace BugTracker.Controllers
             UserRoleHelper = new UserRoleHelper(DbContext);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, Project Manager")]
         public ActionResult Index()
         {
             var allTickets = DbContext.Tickets.ToList();
@@ -122,11 +122,6 @@ namespace BugTracker.Controllers
         {
             var appUserId = User.Identity.GetUserId();
 
-            //var currentUser = DbContext.Users.Where(i => i.Id == appUserId).FirstOrDefault();
-
-            //var tickets =DbContext.Projects.Where(p => p.Users.Contains(currentUser))
-            //    .Select(n => n.Tickets).ToList();
-
             var ticketAssigned = DbContext.Users.Where(i => i.Id == appUserId)
                 .FirstOrDefault().
                 AssignedTickets.ToList();
@@ -162,8 +157,6 @@ namespace BugTracker.Controllers
                 || n.AssigneeId == appUserId)
                 .ToList();
 
-            //var ticketsBelongMyProject = DbContext.Users.Where(i => i.Id == appUserId).FirstOrDefault()
-            //    .Projects.SelectMany(p => p.Tickets).ToList();
 
             var model = allTickets.Select(b => new IndexDevAllTicketViewModel
             {
@@ -508,7 +501,7 @@ namespace BugTracker.Controllers
             model.TicketComments = ticket.TicketComments;
             model.AreYouOwner = true;
 
-            if (!IsAdmin() || !IsProjectManager())
+            if (!IsAdmin() && !IsProjectManager())
             {
                 if (isNotCreator && isNotAssignee)
                 {
@@ -761,7 +754,7 @@ namespace BugTracker.Controllers
             model.TicketComments = ticket.TicketComments;
             model.AreYouOwner = true;
 
-            if (!IsAdmin() || !IsProjectManager())
+            if (!IsAdmin() && !IsProjectManager())
             {
                 if (isNotCreator && isNotAssignee)
                 {
