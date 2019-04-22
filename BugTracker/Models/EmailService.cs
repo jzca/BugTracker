@@ -13,11 +13,6 @@ namespace BugTracker.Models
 {
     public class EmailService : IIdentityMessageService
     {
-        //private string SmtpHost = "";
-        //private int SmtpPort = 2525;
-        //private string SmtpUsername = "";
-        //private string SmtpPassword = "";
-        //private string SmtpFrom = "";
 
         private string SmtpHost = ConfigurationManager.
             AppSettings["SmtpHost"];
