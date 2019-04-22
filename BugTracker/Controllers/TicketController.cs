@@ -466,9 +466,9 @@ namespace BugTracker.Controllers
 
             if (ticket == null)
             {
-                if(IsAdmin() || IsProjectManager())
+                if (IsAdmin() || IsProjectManager())
                 {
-                return RedirectToAction(nameof(TicketController.Index));
+                    return RedirectToAction(nameof(TicketController.Index));
                 }
                 else if (IsSubmitter())
                 {
