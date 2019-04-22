@@ -466,7 +466,19 @@ namespace BugTracker.Controllers
 
             if (ticket == null)
             {
+                if(IsAdmin() || IsProjectManager())
+                {
                 return RedirectToAction(nameof(TicketController.Index));
+                }
+                else if (IsSubmitter())
+                {
+                    return RedirectToAction(nameof(TicketController.IndexSubAll));
+                }
+                else if (IsDeveloper())
+                {
+                    return RedirectToAction(nameof(TicketController.IndexDevAll));
+                }
+
             }
 
             // Check OwnerShip
