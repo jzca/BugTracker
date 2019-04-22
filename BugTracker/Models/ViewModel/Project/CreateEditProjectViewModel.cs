@@ -4,16 +4,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
-namespace BugTracker.Models.ViewModel
+namespace BugTracker.Models.ViewModel.Project
 {
-    public class CommentTicketViewModel
+    public class CreateEditProjectViewModel
     {
-
         public int Id { get; set; }
         [Required]
-        public string Comment { get; set; }
+        public string Name { get; set; }
         public DateTime DateCreated { get; set; }
-        public string CreatorId { get; set; }
-
+        public DateTime? DateUpdated { get; set; }
     }
 }

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
-namespace BugTracker.Models.ViewModel
+namespace BugTracker.Models.ViewModel.Ticket
 {
     public class CreateEditTicketViewModel
     {

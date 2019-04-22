@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
-namespace BugTracker.Models.ViewModel
+namespace BugTracker.Models.ViewModel.Ticket
 {
     public class AttachmentTicketViewModel
     {

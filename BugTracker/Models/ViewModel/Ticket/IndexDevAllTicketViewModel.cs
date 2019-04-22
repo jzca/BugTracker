@@ -3,22 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace BugTracker.Models.ViewModel
+namespace BugTracker.Models.ViewModel.Ticket
 {
-    public class IndexTicketViewModel
+    public class IndexDevAllTicketViewModel
     {
 
         public int Id { get; set; }
         public string Title { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime? DateUpdated { get; set; }
-        public string AssignedDev { get; set; }
         public string ProjectName { get; set; }
         public string CreatorName { get; set; }
+        public string AssigneeName { get; set; }
         public string TicketType { get; set; }
         public string TicketStatus { get; set; }
         public string TicketPriority { get; set; }
-        public bool IsCreator { get; set; }
+        public bool IsAssignee { get; set; }
 
 
     }

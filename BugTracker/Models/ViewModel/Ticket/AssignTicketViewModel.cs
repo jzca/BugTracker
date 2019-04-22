@@ -1,10 +1,11 @@
 ﻿using BugTracker.Models.Domain;
+using BugTracker.Models.ViewModel.Project;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace BugTracker.Models.ViewModel
+namespace BugTracker.Models.ViewModel.Ticket
 {
     public class AssignTicketViewModel
     {

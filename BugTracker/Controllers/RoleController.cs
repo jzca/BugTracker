@@ -1,6 +1,6 @@
 ﻿using BugTracker.Models;
 using BugTracker.Models.Helper;
-using BugTracker.Models.ViewModel;
+using BugTracker.Models.ViewModel.Role;
 using System;
 using System.Collections.Generic;
 using System.Linq;

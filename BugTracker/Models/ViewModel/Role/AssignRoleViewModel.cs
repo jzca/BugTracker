@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace BugTracker.Models.ViewModel
+namespace BugTracker.Models.ViewModel.Role
 {
     public class AssignRoleViewModel
     {
@@ -11,7 +11,6 @@ namespace BugTracker.Models.ViewModel
         {
             Roles = new List<string>();
         }
-
 
         public UserForAssignRoleViewModel User { get; set; }
         public virtual List<string> Roles { get; }

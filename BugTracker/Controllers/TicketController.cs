@@ -1,7 +1,8 @@
 ﻿using BugTracker.Models;
 using BugTracker.Models.Domain;
 using BugTracker.Models.Helper;
-using BugTracker.Models.ViewModel;
+using BugTracker.Models.ViewModel.Project;
+using BugTracker.Models.ViewModel.Ticket;
 using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
