@@ -641,7 +641,7 @@ namespace BugTracker.Controllers
             bool isAdmin = IsAdmin();
             bool isProjm = IsProjectManager();
 
-            if (!isAdmin || !isProjm)
+            if (!isAdmin && !isProjm)
             {
                 bool isSubmitter = IsSubmitter();
                 bool isDeveloper = IsDeveloper();
@@ -671,7 +671,7 @@ namespace BugTracker.Controllers
             bool isAdmin = IsAdmin();
             bool isProjm = IsProjectManager();
 
-            if (!isAdmin || !isProjm)
+            if (!isAdmin && !isProjm)
             {
                 bool isSubmitter = IsSubmitter();
                 bool isDeveloper = IsDeveloper();
