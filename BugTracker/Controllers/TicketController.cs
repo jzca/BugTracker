@@ -362,6 +362,7 @@ namespace BugTracker.Controllers
             return SaveTicket(id, formData);
         }
 
+        [HttpGet]
         [Authorize(Roles = "Admin, Project Manager")]
         public ActionResult AssignTicketManagement(int? id)
         {
@@ -370,6 +371,13 @@ namespace BugTracker.Controllers
                 return RedirectToAction(nameof(TicketController.Index));
             }
 
+            var ticket = DbContext.Tickets.FirstOrDefault(
+                            p => p.Id == id.Value);
+
+            if (ticket == null)
+            {
+                return RedirectToAction(nameof(TicketController.Index));
+            }
 
             var allDevs = DbContext.Users.Where(p => p.Roles.Any(b => b.RoleId ==
             DbContext.Roles.Where(m => m.Name == "Developer").Select(n => n.Id).FirstOrDefault()))
@@ -379,19 +387,10 @@ namespace BugTracker.Controllers
                     UserName = n.UserName
                 }).ToList();
 
-            var ticket = DbContext.Tickets.FirstOrDefault(
-                p => p.Id == id.Value);
-
             var repeated = new UserProjectViewModel();
 
             repeated = allDevs.Where(m => m.Id == ticket.AssigneeId).FirstOrDefault();
             allDevs.Remove(repeated);
-
-
-            if (ticket == null)
-            {
-                return RedirectToAction(nameof(TicketController.Index));
-            }
 
             var model = new AssignTicketViewModel();
             model.MyUser = new UserProjectViewModel();
@@ -456,6 +455,7 @@ namespace BugTracker.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin, Project Manager, Submitter, Developer")]
         public ActionResult Detail(int? id)
         {
             if (!id.HasValue)
@@ -514,6 +514,7 @@ namespace BugTracker.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin, Project Manager, Submitter, Developer")]
         public ActionResult Attachment(int id, AttachmentTicketViewModel formData)
         {
             var ticket = DbContext.Tickets.Where(p => p.Id == id).FirstOrDefault();
@@ -580,6 +581,7 @@ namespace BugTracker.Controllers
 
 
         [HttpPost]
+        [Authorize(Roles = "Admin, Project Manager, Submitter, Developer")]
         public ActionResult Comment(int id, CommentTicketViewModel formData)
         {
             var ticket = DbContext.Tickets.Where(p => p.Id == id).FirstOrDefault();
