@@ -26,10 +26,6 @@
                     e.preventDefault();
                     $(".upload-file").toggle();
                 });
-            });
-        });
-        $(document).ready(function () {
-            $(function () {
                 $(".add-comment").on('click', function (e) {
                     e.preventDefault();
                     $(".post-comment").toggle();
@@ -99,7 +95,7 @@ else
         <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">Attachments</h6>
         </div>
-        <div class="card-body">
+        <div class="card-body cm-bd">
             @if (Model.TicketAttachments.Any())
             {
                 <div class="table-responsive">
@@ -110,6 +106,10 @@ else
                                 <th>FileUrl</th>
                                 <th>Uploader</th>
                                 <th>Date Uploaded</th>
+                                @if (Model.AreYouOwner)
+                                {
+                                    <th></th>
+                                }
                             </tr>
                         </thead>
                         <tbody>
@@ -125,6 +125,17 @@ else
                                     </td>
                                     <th>@file.Creator.DisplayName</th>
                                     <th>@file.DateCreated</th>
+                                    @if (Model.AreYouOwner)
+                                    {
+                                        <td>
+                                            @using (Html.BeginForm("DeleteAttachment", "Ticket", new { id = file.Id, tkId = Model.Id }, FormMethod.Post))
+                                            {
+                                                <button type="submit" class="btn btn-primary btn-sm">
+                                                    <i class="far fa-trash-alt"></i>
+                                                </button>
+                                            }
+                                        </td>
+                                    }
                                 </tr>
                             }
                         </tbody>
@@ -188,6 +199,11 @@ else
                                 <th>Comment</th>
                                 <th>Creator</th>
                                 <th>Date Created</th>
+                                <th>Date Updated</th>
+                                @if (Model.AreYouOwner)
+                                {
+                                    <th></th>
+                                }
                             </tr>
                         </thead>
                         <tbody>
@@ -197,6 +213,21 @@ else
                                     <td>@cm.Comment</td>
                                     <td>@cm.Creator.DisplayName</td>
                                     <td>@cm.DateCreated</td>
+                                    <td>cm.DateUpdated</td>
+
+                                    @if (Model.AreYouOwner)
+                                    {
+                                        <td>
+                                            @using (Html.BeginForm("DeleteComment", "Ticket", new { id = cm.Id, tkId = Model.Id }, FormMethod.Post))
+                                            {
+                                                <button type="submit" class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            }
+                                        </td>
+                                    }
+
+
                                 </tr>
                             }
                         </tbody>

@@ -53,16 +53,17 @@
                             <p>
                                 @Html.ActionLink("Forgot your password?", "ForgotPassword")
                             </p>
-                            <button class="btn btn-outline-primary btn-lg"  >
-                                @Html.ActionLink("Demo Login", "DemoLogin")
-                            </button>
+                            <a class="btn btn-outline-primary btn-lg"
+                               href="@Url.Action("DemoLogin")">
+                                Demo Login
+                            </a>
                         }
                     </section>
                 </div>
             </div>
 
-    </div>
+        </div>
 
-    @section Scripts {
-        @Scripts.Render("~/bundles/jqueryval")
-    }
+        @section Scripts {
+            @Scripts.Render("~/bundles/jqueryval")
+        }

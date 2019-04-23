@@ -14,7 +14,7 @@ using System.Web.Mvc;
 
 namespace BugTracker.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin, Project Manager, Submitter, Developer")]
     public class TicketController : Controller
     {
         private ApplicationDbContext DbContext;
@@ -357,7 +357,6 @@ namespace BugTracker.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin, Project Manager, Submitter, Developer")]
         public ActionResult Edit(int id, CreateEditTicketViewModel formData)
         {
             return SaveTicket(id, formData);
@@ -456,7 +455,6 @@ namespace BugTracker.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin, Project Manager, Submitter, Developer")]
         public ActionResult Detail(int? id)
         {
             if (!id.HasValue)
@@ -527,7 +525,6 @@ namespace BugTracker.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin, Project Manager, Submitter, Developer")]
         public ActionResult Attachment(int id, AttachmentTicketViewModel formData)
         {
             var ticket = DbContext.Tickets.Where(p => p.Id == id).FirstOrDefault();
@@ -594,7 +591,6 @@ namespace BugTracker.Controllers
 
 
         [HttpPost]
-        [Authorize(Roles = "Admin, Project Manager, Submitter, Developer")]
         public ActionResult Comment(int id, CommentTicketViewModel formData)
         {
             var ticket = DbContext.Tickets.Where(p => p.Id == id).FirstOrDefault();
@@ -632,6 +628,131 @@ namespace BugTracker.Controllers
             return RedirectToAction(nameof(TicketController.Detail), new { id });
         }
 
+        [HttpPost]
+        public ActionResult DeleteComment(int? id, int tkId)
+        {
+            if (!id.HasValue)
+            {
+                return RedirectToAction(nameof(TicketController.Detail), new { tkId });
+            }
+            var commentToDel = DbContext.TicketComments.Where(p => p.Id == id).FirstOrDefault();
+            //var ticket = DbContext.Tickets.Where(p => p.Id == tkId).FirstOrDefault();
+            var appUserId = User.Identity.GetUserId();
+
+            var redirectLink = RedirectToAction(nameof(TicketController.Detail), new { id = tkId });
+
+            // Check OwnerShip
+            var result = OwnershipCheckCommentNew(appUserId, commentToDel);
+
+            if (result == nameof(TicketController.Detail))
+            {
+                return redirectLink;
+            }
+
+            if (commentToDel != null)
+            {
+                DbContext.TicketComments.Remove(commentToDel);
+                DbContext.SaveChanges();
+            }
+
+            return redirectLink;
+        }
+
+        [HttpPost]
+        public ActionResult DeleteAttachment(int? id, int tkId)
+        {
+            if (!id.HasValue)
+            {
+                return RedirectToAction(nameof(TicketController.Detail), new { tkId });
+            }
+            var attachmentToDel = DbContext.TicketAttachments.Where(p => p.Id == id).FirstOrDefault();
+            //var ticket = DbContext.Tickets.Where(p => p.Id == tkId).FirstOrDefault();
+            var appUserId = User.Identity.GetUserId();
+
+            var redirectLink = RedirectToAction(nameof(TicketController.Detail), new { id = tkId });
+
+            // Check OwnerShip
+            var result = OwnershipCheckAttachmentNew(appUserId, attachmentToDel);
+
+            if (result == nameof(TicketController.Detail))
+            {
+                return redirectLink;
+            }
+
+            if (attachmentToDel != null)
+            {
+                DbContext.TicketAttachments.Remove(attachmentToDel);
+                DbContext.SaveChanges();
+            }
+
+            return redirectLink;
+        }
+
+
+
+        //[HttpGet]
+        //public ActionResult EditComment(int? id)
+        //{
+
+        //    if (!id.HasValue)
+        //    {
+        //        return RedirectToAction(nameof(CommentController.Index));
+        //    }
+
+        //    var comment = DbContext.Comments.FirstOrDefault(
+        //        p => p.Id == id.Value);
+
+        //    if (comment == null)
+        //    {
+        //        return new HttpStatusCodeResult(HttpStatusCode.ExpectationFailed);
+        //    }
+
+        //    var model = new EditCommentViewModel();
+
+        //    model.Body = comment.Body;
+        //    model.ReasonUpdated = comment.ReasonUpdated;
+        //    model.UserEmail = comment.UserEmail;
+        //    model.DateCreated = comment.DateCreated;
+
+        //    if (comment.DateUpdated != null)
+        //    {
+        //        model.DateUpdated = comment.DateUpdated;
+        //    }
+
+        //    return View(model);
+        //}
+
+        //[HttpPost]
+        //public ActionResult EditComment(int id, EditCommentViewModel formData)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return View();
+        //    }
+
+        //    commentForSaving = DbContext.Comments.FirstOrDefault(
+        //        p => p.Id == id);
+        //    var post = DbContext.Posts.FirstOrDefault(p => p.Id == commentForSaving.PostId);
+
+        //    commentForSaving.DateUpdated = DateTime.Now;
+        //    commentForSaving.Body = formData.Body;
+        //    commentForSaving.ReasonUpdated = formData.ReasonUpdated;
+
+        //    if (commentForSaving == null)
+        //    {
+        //        return new HttpStatusCodeResult(HttpStatusCode.ExpectationFailed);
+        //        //return RedirectToAction(nameof(CommentController.Index));
+        //    }
+
+        //    DbContext.SaveChanges();
+
+        //    return RedirectToAction(nameof(PostController.DetailBySlug), "Post", new { slug = post.Slug });
+        //}
+
+
+
+
+
         private bool IsAdmin() { return User.IsInRole("Admin"); }
         private bool IsProjectManager() { return User.IsInRole("Project Manager"); }
         private bool IsSubmitter() { return User.IsInRole("Submitter"); }
@@ -665,6 +786,85 @@ namespace BugTracker.Controllers
             }
             return null;
         }
+
+
+
+        private string OwnershipCheckCommentNew(string userId, TicketComment comment)
+        {
+
+            bool isNotCreator = comment.CreatorId != userId;
+            return LogicCommentAttachment(isNotCreator);
+
+        }
+
+        private string OwnershipCheckAttachmentNew(string userId, TicketAttachment attachment)
+        {
+
+            bool isNotCreator = attachment.CreatorId != userId;
+            return LogicCommentAttachment(isNotCreator);
+   
+        }
+
+
+
+        private string LogicCommentAttachment(bool tf)
+        {
+            bool isAdmin = IsAdmin();
+            bool isProjm = IsProjectManager();
+
+            if (!isAdmin && !isProjm)
+            {
+                bool isSubmitter = IsSubmitter();
+                bool isDeveloper = IsDeveloper();
+
+                if (tf)
+                {
+                    return nameof(TicketController.Detail);
+                }
+            }
+            return null;
+        }
+
+        private string OwnershipCheckComment(string userId, TicketComment comment)
+        {
+            bool isAdmin = IsAdmin();
+            bool isProjm = IsProjectManager();
+
+            if (!isAdmin && !isProjm)
+            {
+                bool isSubmitter = IsSubmitter();
+                bool isDeveloper = IsDeveloper();
+
+                bool isNotCreator = comment.CreatorId != userId;
+
+                if (isNotCreator)
+                {
+                    return nameof(TicketController.Detail);
+                }
+            }
+            return null;
+        }
+
+        private string OwnershipCheckAttachment(string userId, TicketAttachment attachment)
+        {
+            bool isAdmin = IsAdmin();
+            bool isProjm = IsProjectManager();
+
+            if (!isAdmin && !isProjm)
+            {
+                bool isSubmitter = IsSubmitter();
+                bool isDeveloper = IsDeveloper();
+
+                bool isNotCreator = attachment.CreatorId != userId;
+
+                if (isNotCreator)
+                {
+                    return nameof(TicketController.Detail);
+                }
+            }
+            return null;
+        }
+
 
         private string OwnershipCheckDetail(string userId, Ticket ticket)
         {
