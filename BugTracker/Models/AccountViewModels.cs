@@ -62,6 +62,12 @@ namespace BugTracker.Models
         public bool RememberMe { get; set; }
     }
 
+    public class DemoLoginViewModel
+    {
+        [Required]
+        public string TheChoice { get; set; } 
+    }
+
     public class RegisterViewModel
     {
         [Required]

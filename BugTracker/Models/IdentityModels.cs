@@ -57,5 +57,14 @@ namespace BugTracker.Models
         {
             return new ApplicationDbContext();
         }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<TicketStatus>()
+                .ToTable("TicketStatuses");
+                
+
+        }
     }
 }

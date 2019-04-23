@@ -17,12 +17,14 @@ namespace BugTracker.Controllers
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
+        private readonly ApplicationDbContext DbContext;
 
         public AccountController()
         {
+            DbContext = new ApplicationDbContext();
         }
 
-        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager )
+        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
         {
             UserManager = userManager;
             SignInManager = signInManager;
@@ -34,9 +36,9 @@ namespace BugTracker.Controllers
             {
                 return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
             }
-            private set 
-            { 
-                _signInManager = value; 
+            private set
+            {
+                _signInManager = value;
             }
         }
 
@@ -96,6 +98,75 @@ namespace BugTracker.Controllers
             }
         }
 
+        // GET: /Account/DemoLogin
+        [AllowAnonymous]
+        public ActionResult DemoLogin(string returnUrl)
+        {
+            bool signInYes = User.Identity.IsAuthenticated;
+
+            if (signInYes)
+            {
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
+
+            ViewBag.ReturnUrl = returnUrl;
+            return View();
+        }
+
+
+        // POST: /Account/DemoLogin
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public ActionResult DemoLogin(DemoLoginViewModel formData, string returnUrl)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View();
+            }
+
+            var users = DbContext.Users.ToList();
+            if (users.Count() < 4)
+            {
+                ModelState.AddModelError("", "Sorry, failed to operate because some erros occurred on the data base");
+                return View();
+            }
+
+            ApplicationUser demoUser = new ApplicationUser();
+            
+            if (formData.TheChoice.Contains("Admin"))
+            {
+                demoUser = users.Where(p => p.UserName == "admin@mybugtracker.com").FirstOrDefault();
+            }
+            else if (formData.TheChoice.Contains("Manager"))
+            {
+                demoUser = users.Where(p => p.UserName == "pm@mybugtracker.com").FirstOrDefault();
+            }
+            else if (formData.TheChoice.Contains("Developer"))
+            {
+                demoUser = users.Where(p => p.UserName == "dev@mybugtracker.com").FirstOrDefault();
+            }
+            else if (formData.TheChoice.Contains("Submitter"))
+            {
+                demoUser = users.Where(p => p.UserName == "sub@mybugtracker.com").FirstOrDefault();
+            }
+
+
+            if (demoUser == null)
+            {
+                ModelState.AddModelError("", "Sorry, something went wrong");
+                return View();
+            }
+
+
+            SignInManager.SignIn(demoUser, false, false);
+
+            return RedirectToLocal(returnUrl);
+
+        }
+
+
+
         //
         // GET: /Account/VerifyCode
         [AllowAnonymous]
@@ -125,7 +196,7 @@ namespace BugTracker.Controllers
             // If a user enters incorrect codes for a specified amount of time then the user account 
             // will be locked out for a specified amount of time. 
             // You can configure the account lockout settings in IdentityConfig
-            var result = await SignInManager.TwoFactorSignInAsync(model.Provider, model.Code, isPersistent:  model.RememberMe, rememberBrowser: model.RememberBrowser);
+            var result = await SignInManager.TwoFactorSignInAsync(model.Provider, model.Code, isPersistent: model.RememberMe, rememberBrowser: model.RememberBrowser);
             switch (result)
             {
                 case SignInStatus.Success:
@@ -156,7 +227,7 @@ namespace BugTracker.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email};
+                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
                 if (user.Email.Contains("@"))
                 {
                     user.DisplayName = model.Email.Split('@')[0];
@@ -164,13 +235,13 @@ namespace BugTracker.Controllers
                 else
                 {
                     user.DisplayName = GetHashCode().ToString().Substring(0, 5);
-                }                    
+                }
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
                     UserManager.AddToRole(user.Id, "Submitter");
-                    await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
-                    
+                    await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+
                     // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
                     // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
@@ -226,18 +297,18 @@ namespace BugTracker.Controllers
                 // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
                 // Send an email with this link
 
-                var eService = new BugTracker.Models.EmailService();              
+                var eService = new BugTracker.Models.EmailService();
                 string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
                 var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
                 var userId = UserManager.FindByNameAsync(model.Email);
                 var userEmail = UserManager.GetEmail(user.Id);
                 if (userEmail != null)
                 {
-                eService.Send(userEmail,                    
-                    "Reset Password",
-                    "Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>");
+                    eService.Send(userEmail,
+                        "Reset Password",
+                        "Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>");
                 }
-          
+
                 return RedirectToAction("ForgotPasswordConfirmation", "Account");
             }
 

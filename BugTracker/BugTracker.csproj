@@ -1869,6 +1869,7 @@
     <Content Include="Views\Ticket\IndexDevAll.cshtml" />
     <Content Include="Views\Ticket\IndexSubAll.cshtml" />
     <Content Include="Views\Ticket\ErroMsg.cshtml" />
+    <Content Include="Views\Account\DemoLogin.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
