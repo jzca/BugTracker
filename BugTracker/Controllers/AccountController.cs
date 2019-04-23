@@ -133,7 +133,7 @@ namespace BugTracker.Controllers
             }
 
             ApplicationUser demoUser = new ApplicationUser();
-            
+
             if (formData.TheChoice.Contains("Admin"))
             {
                 demoUser = users.Where(p => p.UserName == "admin@mybugtracker.com").FirstOrDefault();
