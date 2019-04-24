@@ -1,4 +1,5 @@
-﻿using BugTracker.Models;
+﻿using AutoMapper;
+using BugTracker.Models;
 using BugTracker.Models.Domain;
 using BugTracker.Models.Helper;
 using BugTracker.Models.ViewModel.Project;
@@ -509,8 +510,8 @@ namespace BugTracker.Controllers
             model.CreatorName = ticket.Creator.DisplayName;
             model.DateCreated = ticket.DateCreated;
             model.DateUpdated = ticket.DateUpdated;
-            model.TicketAttachments = ticket.TicketAttachments;
-            model.TicketComments = ticket.TicketComments;
+            model.TicketAttachments = Mapper.Map<List<AttachmentDetailViewModel>>(ticket.TicketAttachments) ;
+            model.TicketComments = Mapper.Map<List<CommentDetailViewModel>>(ticket.TicketComments);
             model.AreYouOwner = true;
 
             if (!IsAdmin() && !IsProjectManager())
@@ -589,7 +590,6 @@ namespace BugTracker.Controllers
                     FileUrl = AttachmentHandler.AttachmentSaveFolder + fileName,
                     DateCreated = DateTime.Now,
                     Description = formData.Description,
-                    OwnerAttachment = true,
 
                 };
 
@@ -631,7 +631,6 @@ namespace BugTracker.Controllers
                 Comment = formData.Comment,
                 CreatorId = appUserId,
                 DateCreated = DateTime.Now,
-                OwnerComment = true,
         };
 
             DbContext.TicketComments.Add(freshComment);
@@ -935,8 +934,8 @@ namespace BugTracker.Controllers
             model.CreatorName = ticket.Creator.DisplayName;
             model.DateCreated = ticket.DateCreated;
             model.DateUpdated = ticket.DateUpdated;
-            model.TicketAttachments = ticket.TicketAttachments;
-            model.TicketComments = ticket.TicketComments;
+            model.TicketAttachments = Mapper.Map<List<AttachmentDetailViewModel>>(ticket.TicketAttachments);
+            model.TicketComments = Mapper.Map<List<CommentDetailViewModel>>(ticket.TicketComments);
             model.AreYouOwner = true;
 
             if (!IsAdmin() && !IsProjectManager())

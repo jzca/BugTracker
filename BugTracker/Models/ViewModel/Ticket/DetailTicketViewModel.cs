@@ -1,5 +1,4 @@
-﻿using BugTracker.Models.Domain;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -11,8 +10,8 @@ namespace BugTracker.Models.ViewModel.Ticket
         public DetailTicketViewModel()
         {
 
-            TicketComments = new List<TicketComment>();
-            TicketAttachments = new List<TicketAttachment>();
+            TicketComments = new List<CommentDetailViewModel>();
+            TicketAttachments = new List<AttachmentDetailViewModel>();
         }
 
 
@@ -30,8 +29,8 @@ namespace BugTracker.Models.ViewModel.Ticket
         public AttachmentTicketViewModel AttachmentVM { get; set; }
         public CommentTicketViewModel CommentVM { get; set; }
 
-        public virtual List<TicketComment> TicketComments { get; set; }
-        public virtual List<TicketAttachment> TicketAttachments { get; set; }
+        public virtual List<CommentDetailViewModel> TicketComments { get; set; }
+        public virtual List<AttachmentDetailViewModel> TicketAttachments { get; set; }
 
         public bool AreYouOwner { get; set; }
 

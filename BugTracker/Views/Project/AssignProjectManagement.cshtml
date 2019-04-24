@@ -5,19 +5,6 @@
 
 <h2>Assign</h2>
 
-@section scripts  {
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $(function () {
-                $(".btn-assign").on('click', function (e) {
-                    e.preventDefault();
-                    $(this).closest('form').submit();
-                });
-            });
-        });
-    </script>
-}
-
 @Html.ValidationSummary(false)
 
 @if (Model == null)
@@ -28,30 +15,75 @@
 }
 else
 {
-    <h5>@Model.ProjectName</h5>
-    <div>
-        @foreach (var record in Model.MyUsers)
-        {
-            <div>@record.UserName</div>
-            <div>
-                <form method="post" action="@Url.Action("UnAssign", "Project", new { userId = record.Id, pJid = Model.ProjectId } )">
-                    <a href="#" class="btn-assign">UnAssign</a>
-                </form>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h5 class="m-0 font-weight-bold text-primary">Project: @Model.ProjectName</h5>
+            <h6 class="m-0 font-weight-bold text-primary">Assigned Users</h6>
+        </div>
+        <div class="card-body cm-bd">
+            <div class="table-responsive">
+                <table class="table table-striped table-auto-sort">
+                    <thead>
+                        <tr>
+                            <th>UserName</th>
+                            <th>UnAssign</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var record in Model.MyUsers)
+                        {
+                            <tr>
+                                <td>@record.UserName</td>
+                                <td>
+
+                                    @using (Html.BeginForm("UnAssign", "Project", new { userId = record.Id, pJid = Model.ProjectId }, FormMethod.Post))
+                                    {
+                                        <button type="submit" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-user-slash"></i>
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
-        }
+        </div>
     </div>
 
-    <h5 style="margin-top: 15px">Users</h5>
-    <div>
-        @foreach (var record in Model.Users)
-        {
-            <div>@record.UserName</div>
-            <div>
-                <form class="getout" method="post" action="@Url.Action("Assign", "Project", new { userId = record.Id, pJid = Model.ProjectId } )">
-                    <a href="#" class="btn-assign getout">Assign</a>
-                </form>
-
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Available Users</h6>
+        </div>
+        <div class="card-body cm-bd">
+            <div class="table-responsive">
+                <table class="table table-striped table-auto-sort">
+                    <thead>
+                        <tr>
+                            <th>UserName</th>
+                            <th>Assign</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var record in Model.Users)
+                        {
+                            <tr>
+                                <td>@record.UserName</td>
+                                <td>
+                                    @using (Html.BeginForm("Assign", "Project", new { userId = record.Id, pJid = Model.ProjectId }, FormMethod.Post))
+                                    {
+                                        <button type="submit" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-user-plus"></i>
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
-        }
+        </div>
     </div>
+
 }

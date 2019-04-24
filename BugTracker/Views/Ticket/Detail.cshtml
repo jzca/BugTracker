@@ -121,8 +121,8 @@ else
                                             @file.FileUrl
                                         </a>
                                     </td>
-                                    <th>@file.Creator.DisplayName</th>
-                                    <th>@file.DateCreated</th>
+                                    <td>@file.Creator.DisplayName</td>
+                                    <td>@file.DateCreated</td>
                                     @if (User.IsInRole("Admin") || User.IsInRole("Project Manager") || file.OwnerAttachment)
                                     {
                                         <td>
