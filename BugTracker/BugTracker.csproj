@@ -212,6 +212,7 @@
     <Compile Include="Models\ViewModel\Role\AssignRoleViewModel.cs" />
     <Compile Include="Models\ViewModel\Ticket\AttachmentTicketViewModel.cs" />
     <Compile Include="Models\ViewModel\Project\CreateEditProjectViewModel.cs" />
+    <Compile Include="Models\ViewModel\Ticket\EditCommentTicketViewModel.cs" />
     <Compile Include="Models\ViewModel\Ticket\CreateEditTicketViewModel.cs" />
     <Compile Include="Models\ViewModel\Ticket\DropDownTicketViewModel.cs" />
     <Compile Include="Models\ViewModel\Ticket\IndexDevAssignedTicketViewModel.cs" />
@@ -1870,6 +1871,7 @@
     <Content Include="Views\Ticket\IndexSubAll.cshtml" />
     <Content Include="Views\Ticket\ErroMsg.cshtml" />
     <Content Include="Views\Account\DemoLogin.cshtml" />
+    <Content Include="Views\Ticket\EditComment.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -1,0 +1,25 @@
+﻿@model EditCommentTicketViewModel
+@{
+    ViewBag.Title = "Edit the comment";
+}
+
+<h3>@ViewBag.Title</h3>
+
+<form method="post">
+    @Html.ValidationSummary(false)
+
+    <div class="form-group">
+        @Html.LabelFor(p => p.Comment, "Title")
+        @Html.TextBoxFor(p => p.Comment, new { @class = "form-control", placeholder = "Ticket title" })
+    </div>
+
+    <div>
+        <button type="submit" class="btn btn-outline-secondary">Submit</button>
+    </div>
+
+</form>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+

@@ -7,7 +7,7 @@ using System.Web;
 
 namespace BugTracker.Models.Domain
 {
-    //[Table("TicketStatuses")]
+
     public class TicketStatus
     {
         public TicketStatus()
@@ -15,7 +15,6 @@ namespace BugTracker.Models.Domain
             Tickets = new List<Ticket>();
         }
 
-        //[Column("n_id")]
         public int Id { get; set; }
 
         [Required]

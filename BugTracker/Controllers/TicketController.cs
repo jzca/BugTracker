@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data.Entity.Validation;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Web;
 using System.Web.Mvc;
 
@@ -690,64 +691,62 @@ namespace BugTracker.Controllers
 
 
 
-        //[HttpGet]
-        //public ActionResult EditComment(int? id)
-        //{
+        [HttpGet]
+        public ActionResult EditComment(int? id)
+        {
 
-        //    if (!id.HasValue)
-        //    {
-        //        return RedirectToAction(nameof(CommentController.Index));
-        //    }
+            if (!id.HasValue)
+            {
+                return RedirectToAction(nameof(TicketController.Index));
+            }
 
-        //    var comment = DbContext.Comments.FirstOrDefault(
-        //        p => p.Id == id.Value);
+            var comment = DbContext.TicketComments.FirstOrDefault(
+                p => p.Id == id.Value);
 
-        //    if (comment == null)
-        //    {
-        //        return new HttpStatusCodeResult(HttpStatusCode.ExpectationFailed);
-        //    }
+            if (comment == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.ExpectationFailed);
+            }
 
-        //    var model = new EditCommentViewModel();
+            var model = new EditCommentTicketViewModel();
 
-        //    model.Body = comment.Body;
-        //    model.ReasonUpdated = comment.ReasonUpdated;
-        //    model.UserEmail = comment.UserEmail;
-        //    model.DateCreated = comment.DateCreated;
+            model.Comment = comment.Comment;
+            model.TicketId = comment.TicketId;
 
-        //    if (comment.DateUpdated != null)
-        //    {
-        //        model.DateUpdated = comment.DateUpdated;
-        //    }
+            return View(model);
+        }
 
-        //    return View(model);
-        //}
+        [HttpPost]
+        public ActionResult EditComment(int id, EditCommentTicketViewModel formData)
+        {
+            if (!ModelState.IsValid)
+            {
+                var comment = DbContext.TicketComments.FirstOrDefault(
+                  p => p.Id == id);
 
-        //[HttpPost]
-        //public ActionResult EditComment(int id, EditCommentViewModel formData)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return View();
-        //    }
+                var model = new EditCommentTicketViewModel();
 
-        //    commentForSaving = DbContext.Comments.FirstOrDefault(
-        //        p => p.Id == id);
-        //    var post = DbContext.Posts.FirstOrDefault(p => p.Id == commentForSaving.PostId);
+                model.Comment = comment.Comment;
+                model.TicketId = comment.TicketId;
 
-        //    commentForSaving.DateUpdated = DateTime.Now;
-        //    commentForSaving.Body = formData.Body;
-        //    commentForSaving.ReasonUpdated = formData.ReasonUpdated;
+                return View(model);
+            }
 
-        //    if (commentForSaving == null)
-        //    {
-        //        return new HttpStatusCodeResult(HttpStatusCode.ExpectationFailed);
-        //        //return RedirectToAction(nameof(CommentController.Index));
-        //    }
+            var commentForSaving = DbContext.TicketComments.FirstOrDefault(
+                p => p.Id == id);
+          
+            commentForSaving.Comment = formData.Comment;
 
-        //    DbContext.SaveChanges();
+            if (commentForSaving == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.ExpectationFailed);
+            }
 
-        //    return RedirectToAction(nameof(PostController.DetailBySlug), "Post", new { slug = post.Slug });
-        //}
+            DbContext.SaveChanges();
+
+            return RedirectToAction(nameof(TicketController.Detail), new { id = commentForSaving.TicketId });
+        }
+
 
 
 
@@ -802,7 +801,7 @@ namespace BugTracker.Controllers
 
             bool isNotCreator = attachment.CreatorId != userId;
             return LogicCommentAttachment(isNotCreator);
-   
+
         }
 
 
@@ -824,47 +823,6 @@ namespace BugTracker.Controllers
             }
             return null;
         }
-
-        private string OwnershipCheckComment(string userId, TicketComment comment)
-        {
-            bool isAdmin = IsAdmin();
-            bool isProjm = IsProjectManager();
-
-            if (!isAdmin && !isProjm)
-            {
-                bool isSubmitter = IsSubmitter();
-                bool isDeveloper = IsDeveloper();
-
-                bool isNotCreator = comment.CreatorId != userId;
-
-                if (isNotCreator)
-                {
-                    return nameof(TicketController.Detail);
-                }
-            }
-            return null;
-        }
-
-        private string OwnershipCheckAttachment(string userId, TicketAttachment attachment)
-        {
-            bool isAdmin = IsAdmin();
-            bool isProjm = IsProjectManager();
-
-            if (!isAdmin && !isProjm)
-            {
-                bool isSubmitter = IsSubmitter();
-                bool isDeveloper = IsDeveloper();
-
-                bool isNotCreator = attachment.CreatorId != userId;
-
-                if (isNotCreator)
-                {
-                    return nameof(TicketController.Detail);
-                }
-            }
-            return null;
-        }
-
 
         private string OwnershipCheckDetail(string userId, Ticket ticket)
         {
