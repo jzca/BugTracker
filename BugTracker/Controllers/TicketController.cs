@@ -519,6 +519,16 @@ namespace BugTracker.Controllers
                 {
                     model.AreYouOwner = false;
                 }
+
+                foreach (var a in model.TicketComments)
+                {
+                    a.OwnerComment = a.CreatorId == appUserId;
+                }
+
+                foreach (var a in model.TicketAttachments)
+                {
+                    a.OwnerAttachment= a.CreatorId == appUserId;
+                }
             }
 
             return View(model);
@@ -578,7 +588,8 @@ namespace BugTracker.Controllers
                     FilePath = fullPathWithName,
                     FileUrl = AttachmentHandler.AttachmentSaveFolder + fileName,
                     DateCreated = DateTime.Now,
-                    Description = formData.Description
+                    Description = formData.Description,
+                    OwnerAttachment = true,
 
                 };
 
@@ -619,8 +630,9 @@ namespace BugTracker.Controllers
                 TicketId = id,
                 Comment = formData.Comment,
                 CreatorId = appUserId,
-                DateCreated = DateTime.Now
-            };
+                DateCreated = DateTime.Now,
+                OwnerComment = true,
+        };
 
             DbContext.TicketComments.Add(freshComment);
 
@@ -932,6 +944,16 @@ namespace BugTracker.Controllers
                 if (isNotCreator && isNotAssignee)
                 {
                     model.AreYouOwner = false;
+                }
+
+                foreach (var a in model.TicketComments)
+                {
+                    a.OwnerComment = a.CreatorId == theUserId;
+                }
+
+                foreach (var a in model.TicketAttachments)
+                {
+                    a.OwnerAttachment = a.CreatorId == theUserId;
                 }
             }
 

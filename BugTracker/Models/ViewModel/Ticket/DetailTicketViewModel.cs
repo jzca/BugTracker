@@ -35,6 +35,5 @@ namespace BugTracker.Models.ViewModel.Ticket
 
         public bool AreYouOwner { get; set; }
 
-
     }
 }

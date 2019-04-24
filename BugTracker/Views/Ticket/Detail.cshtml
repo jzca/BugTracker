@@ -106,10 +106,8 @@ else
                                 <th>FileUrl</th>
                                 <th>Uploader</th>
                                 <th>Date Uploaded</th>
-                                @if (Model.AreYouOwner)
-                                {
-                                    <th></th>
-                                }
+                                <th>Delete</th>
+
                             </tr>
                         </thead>
                         <tbody>
@@ -125,7 +123,7 @@ else
                                     </td>
                                     <th>@file.Creator.DisplayName</th>
                                     <th>@file.DateCreated</th>
-                                    @if (Model.AreYouOwner)
+                                    @if (User.IsInRole("Admin") || User.IsInRole("Project Manager") || file.OwnerAttachment)
                                     {
                                         <td>
                                             @using (Html.BeginForm("DeleteAttachment", "Ticket", new { id = file.Id, tkId = Model.Id }, FormMethod.Post))
@@ -135,6 +133,10 @@ else
                                                 </button>
                                             }
                                         </td>
+                                    }
+                                    else
+                                    {
+                                        <td><i class="fas fa-ban"></i></td>
                                     }
                                 </tr>
                             }
@@ -199,11 +201,8 @@ else
                                 <th>Comment</th>
                                 <th>Creator</th>
                                 <th>Date Created</th>
-                                @if (Model.AreYouOwner)
-                                {
-                                    <th></th>
-                                    <th></th>
-                                }
+                                <th>Edit</th>
+                                <th>Delete</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -213,14 +212,14 @@ else
                                     <td>@cm.Comment</td>
                                     <td>@cm.Creator.DisplayName</td>
                                     <td>@cm.DateCreated</td>
-                                    <td>
-                                        <a href="@Url.Action("EditComment", "Ticket", new { id = cm.Id})">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                    </td>
 
-                                    @if (Model.AreYouOwner)
+                                    @if (User.IsInRole("Admin") || User.IsInRole("Project Manager") || cm.OwnerComment)
                                     {
+                                        <td>
+                                            <a href="@Url.Action("EditComment", "Ticket", new { id = cm.Id})">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </td>
                                         <td>
                                             @using (Html.BeginForm("DeleteComment", "Ticket", new { id = cm.Id, tkId = Model.Id }, FormMethod.Post))
                                             {
@@ -229,6 +228,13 @@ else
                                                 </button>
                                             }
                                         </td>
+
+
+                                    }
+                                    else
+                                    {
+                                        <td><i class="fas fa-ban"></i></td>
+                                        <td><i class="fas fa-ban"></i></td>
                                     }
 
 

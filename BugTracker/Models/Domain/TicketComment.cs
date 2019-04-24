@@ -14,5 +14,6 @@ namespace BugTracker.Models.Domain
         public int TicketId { get; set; }
         public virtual ApplicationUser Creator { get; set; }
         public string CreatorId { get; set; }
+        public bool OwnerComment { get; set; }
     }
 }
