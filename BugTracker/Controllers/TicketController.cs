@@ -21,17 +21,19 @@ namespace BugTracker.Controllers
     {
         private ApplicationDbContext DbContext;
         private readonly UserRoleHelper UserRoleHelper;
+        private readonly AppHepler AppHepler;
 
         public TicketController()
         {
             DbContext = new ApplicationDbContext();
             UserRoleHelper = new UserRoleHelper(DbContext);
+            AppHepler = new AppHepler(DbContext);
         }
 
         [Authorize(Roles = "Admin, Project Manager")]
         public ActionResult Index()
         {
-            var allTickets = DbContext.Tickets.ToList();
+            var allTickets = AppHepler.GetAllTickets();
 
             var model = allTickets.Select(b => new IndexTicketViewModel
             {
@@ -55,7 +57,7 @@ namespace BugTracker.Controllers
         public ActionResult IndexSubCreated()
         {
             var appUserId = User.Identity.GetUserId();
-            var currentUser = DbContext.Users.Where(i => i.Id == appUserId).FirstOrDefault();
+            var currentUser = AppHepler.GetUserById(appUserId);
 
             var model = currentUser.CreatedTickets.Select(b => new IndexTicketViewModel
             {
@@ -79,15 +81,11 @@ namespace BugTracker.Controllers
         {
             var appUserId = User.Identity.GetUserId();
 
-            var currentUserDisplayName = DbContext.Users
-                                            .Where(p => p.Id == appUserId)
-                                            .Select(b => b.DisplayName)
-                                            .FirstOrDefault();
+            var currentUserDisplayName = AppHepler
+                    .GetDisplayName4CurrentUserById(appUserId);
 
-            var allTickets = DbContext.Tickets
-                .Where(n => n.Project.Users.Any(m => m.Id == appUserId)
-                || n.CreatorId == appUserId)
-                .ToList();
+            var allTickets = AppHepler
+                .GetAllTicketsForDevOrSub(AppHepler.WhichRole.Submitter, appUserId);
 
             var model = allTickets.Select(b => new IndexTicketViewModel
             {
@@ -125,9 +123,8 @@ namespace BugTracker.Controllers
         {
             var appUserId = User.Identity.GetUserId();
 
-            var ticketAssigned = DbContext.Users.Where(i => i.Id == appUserId)
-                .FirstOrDefault().
-                AssignedTickets.ToList();
+            var ticketAssigned = AppHepler.GetUserById(appUserId)
+                .AssignedTickets.ToList();
 
             var model = ticketAssigned.Select(b => new IndexDevAssignedTicketViewModel
             {
@@ -150,16 +147,11 @@ namespace BugTracker.Controllers
         {
             var appUserId = User.Identity.GetUserId();
 
-            var currentUserDisplayName = DbContext.Users
-                                .Where(p => p.Id == appUserId)
-                                .Select(b => b.DisplayName)
-                                .FirstOrDefault();
+            var currentUserDisplayName = AppHepler
+                .GetDisplayName4CurrentUserById(appUserId);
 
-            var allTickets = DbContext.Tickets
-                .Where(n => n.Project.Users.Any(m => m.Id == appUserId)
-                || n.AssigneeId == appUserId)
-                .ToList();
-
+            var allTickets = AppHepler
+                .GetAllTicketsForDevOrSub(AppHepler.WhichRole.Developer, appUserId);
 
             var model = allTickets.Select(b => new IndexDevAllTicketViewModel
             {
@@ -198,15 +190,13 @@ namespace BugTracker.Controllers
         public ActionResult Create()
         {
             var appUserId = User.Identity.GetUserId();
-            var subPjts = DbContext.Projects.Where(p => p.Users.Any(m => m.Id == appUserId)).ToList();
+            var subPjts = AppHepler.GetProjects4CurrentUserById(appUserId);
 
             var model = new CreateEditTicketViewModel();
             model.ProjectBelong = new SelectList(subPjts, "Id", "Name");
             model.TicketType = new SelectList(DbContext.TicketTypes, "Id", "Name");
             model.TicketPriority = new SelectList(DbContext.TicketPriorities, "Id", "Name");
-            model.GetTicketStatus = Convert.ToString(DbContext.TicketStatuses
-                    .Where(p => p.Name == TicketEnum.Status.Open.ToString())
-                    .Select(b => b.Id).FirstOrDefault());
+            model.GetTicketStatus = Convert.ToString(AppHepler.GetDefaultTicketStatus());
             return View(model);
         }
 
@@ -233,15 +223,12 @@ namespace BugTracker.Controllers
                 ticketForSaving = new Ticket();
                 ticketForSaving.DateCreated = DateTime.Now;
                 ticketForSaving.CreatorId = appUserId;
-                ticketForSaving.TicketStatusId = DbContext.TicketStatuses
-                    .Where(p => p.Name == TicketEnum.Status.Open.ToString())
-                    .Select(b => b.Id).FirstOrDefault();
+                ticketForSaving.TicketStatusId = AppHepler.GetDefaultTicketStatus();
                 DbContext.Tickets.Add(ticketForSaving);
             }
             else
             {
-                ticketForSaving = DbContext.Tickets.FirstOrDefault(
-               p => p.Id == id);
+                ticketForSaving = AppHepler.GetTicketById(id);
 
                 if (ticketForSaving == null)
                 {
@@ -308,8 +295,7 @@ namespace BugTracker.Controllers
                 return RedirectToAction(nameof(TicketController.Index));
             }
 
-            var ticket = DbContext.Tickets.FirstOrDefault(
-                p => p.Id == id.Value);
+            var ticket = AppHepler.GetTicketById(id);
 
             if (ticket == null)
             {
@@ -331,7 +317,7 @@ namespace BugTracker.Controllers
             }
 
 
-            var ownedPjts = DbContext.Projects.Where(p => p.Users.Any(m => m.Id == appUserId)).ToList();
+            var ownedPjts = AppHepler.GetProjects4CurrentUserById(appUserId);
 
             var model = new CreateEditTicketViewModel();
             model.Title = ticket.Title;
@@ -343,7 +329,7 @@ namespace BugTracker.Controllers
 
             if (IsAdmin() || IsProjectManager())
             {
-                var allPjts = DbContext.Projects.ToList();
+                var allPjts = AppHepler.GetAllProjects();
                 model.ProjectBelong = new SelectList(allPjts, "Id", "Name");
                 model.TicketStatus = new SelectList(DbContext.TicketStatuses, "Id", "Name");
                 model.GetTicketStatus = Convert.ToString(ticket.TicketStatusId);
@@ -373,8 +359,7 @@ namespace BugTracker.Controllers
                 return RedirectToAction(nameof(TicketController.Index));
             }
 
-            var ticket = DbContext.Tickets.FirstOrDefault(
-                            p => p.Id == id.Value);
+            var ticket = AppHepler.GetTicketById(id);
 
             if (ticket == null)
             {
@@ -383,6 +368,7 @@ namespace BugTracker.Controllers
 
             var allDevs = DbContext.Users.Where(p => p.Roles.Any(b => b.RoleId ==
             DbContext.Roles.Where(m => m.Name == "Developer").Select(n => n.Id).FirstOrDefault()))
+
                 .Select(n => new UserProjectViewModel
                 {
                     Id = n.Id,
@@ -420,8 +406,8 @@ namespace BugTracker.Controllers
         public ActionResult Assign(int tkId, string userId)
         {
 
-            var ticket = DbContext.Tickets.FirstOrDefault(p => p.Id == tkId);
-            var user = DbContext.Users.FirstOrDefault(p => p.Id == userId);
+            var ticket = AppHepler.GetTicketById(tkId);
+            var user = AppHepler.GetUserById(userId);
 
             bool freshTicket = true;
             if (user.AssignedTickets.Any())
@@ -443,8 +429,8 @@ namespace BugTracker.Controllers
         [Authorize(Roles = "Admin, Project Manager")]
         public ActionResult UnAssign(int tkId, string userId)
         {
-            var ticket = DbContext.Tickets.FirstOrDefault(p => p.Id == tkId);
-            var user = DbContext.Users.FirstOrDefault(p => p.Id == userId);
+            var ticket = AppHepler.GetTicketById(tkId);
+            var user = AppHepler.GetUserById(userId);
 
             bool includedTicket = user.AssignedTickets.Any(p => p.Id == ticket.Id);
             if (includedTicket)
@@ -463,7 +449,7 @@ namespace BugTracker.Controllers
                 return RedirectToAction(nameof(TicketController.Index));
             var appUserId = User.Identity.GetUserId();
 
-            var ticket = DbContext.Tickets.Where(p => p.Id == id.Value).FirstOrDefault();
+            var ticket = AppHepler.GetTicketById(id);
 
             if (ticket == null)
             {
@@ -539,7 +525,7 @@ namespace BugTracker.Controllers
         [HttpPost]
         public ActionResult Attachment(int id, AttachmentTicketViewModel formData)
         {
-            var ticket = DbContext.Tickets.Where(p => p.Id == id).FirstOrDefault();
+            var ticket = AppHepler.GetTicketById(id);
             var appUserId = User.Identity.GetUserId();
 
             if (!ModelState.IsValid)
@@ -605,7 +591,7 @@ namespace BugTracker.Controllers
         [HttpPost]
         public ActionResult Comment(int id, CommentTicketViewModel formData)
         {
-            var ticket = DbContext.Tickets.Where(p => p.Id == id).FirstOrDefault();
+            var ticket = AppHepler.GetTicketById(id);
             var appUserId = User.Identity.GetUserId();
 
             if (!ModelState.IsValid)
@@ -647,8 +633,7 @@ namespace BugTracker.Controllers
             {
                 return RedirectToAction(nameof(TicketController.Detail), new { tkId });
             }
-            var commentToDel = DbContext.TicketComments.Where(p => p.Id == id).FirstOrDefault();
-            //var ticket = DbContext.Tickets.Where(p => p.Id == tkId).FirstOrDefault();
+            var commentToDel = AppHepler.GetTicketCommentById(id);
             var appUserId = User.Identity.GetUserId();
 
             var redirectLink = RedirectToAction(nameof(TicketController.Detail), new { id = tkId });
@@ -677,8 +662,8 @@ namespace BugTracker.Controllers
             {
                 return RedirectToAction(nameof(TicketController.Detail), new { tkId });
             }
-            var attachmentToDel = DbContext.TicketAttachments.Where(p => p.Id == id).FirstOrDefault();
-            //var ticket = DbContext.Tickets.Where(p => p.Id == tkId).FirstOrDefault();
+            var attachmentToDel = AppHepler.GetTicketAttachmentById(id);
+
             var appUserId = User.Identity.GetUserId();
 
             var redirectLink = RedirectToAction(nameof(TicketController.Detail), new { id = tkId });
@@ -711,8 +696,7 @@ namespace BugTracker.Controllers
                 return RedirectToAction(nameof(TicketController.Index));
             }
 
-            var comment = DbContext.TicketComments.FirstOrDefault(
-                p => p.Id == id.Value);
+            var comment = AppHepler.GetTicketCommentById(id);
 
             if (comment == null)
             {
@@ -732,8 +716,7 @@ namespace BugTracker.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var comment = DbContext.TicketComments.FirstOrDefault(
-                  p => p.Id == id);
+                var comment = AppHepler.GetTicketCommentById(id);
 
                 var model = new EditCommentTicketViewModel();
 
@@ -743,9 +726,8 @@ namespace BugTracker.Controllers
                 return View(model);
             }
 
-            var commentForSaving = DbContext.TicketComments.FirstOrDefault(
-                p => p.Id == id);
-          
+            var commentForSaving = AppHepler.GetTicketCommentById(id);
+
             commentForSaving.Comment = formData.Comment;
 
             if (commentForSaving == null)
@@ -886,12 +868,12 @@ namespace BugTracker.Controllers
 
             if (!IsAdmin() || !IsProjectManager())
             {
-                var holdPjts = DbContext.Projects.Where(p => p.Users.Any(m => m.Id == thisUserId)).ToList();
+                var holdPjts = AppHepler.GetProjects4CurrentUserById(thisUserId);
                 model.ProjectBelong = new SelectList(holdPjts, "Id", "Name");
             }
             else
             {
-                var allPjts = DbContext.Projects.ToList();
+                var allPjts = AppHepler.GetAllProjects();
                 model.ProjectBelong = new SelectList(allPjts, "Id", "Name");
                 model.TicketStatus = new SelectList(DbContext.TicketStatuses, "Id", "Name");
 
@@ -899,8 +881,7 @@ namespace BugTracker.Controllers
 
             if (tkId.HasValue)
             {
-                var thisTicket = DbContext.Tickets.FirstOrDefault(
-                                    p => p.Id == tkId);
+                var thisTicket = AppHepler.GetTicketById(tkId);
                 if (IsAdmin() || IsProjectManager())
                 {
                     model.GetTicketStatus = Convert.ToString(thisTicket.TicketStatusId);

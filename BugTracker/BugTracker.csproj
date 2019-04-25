@@ -202,6 +202,7 @@
     <Compile Include="Models\Domain\TicketStatus.cs" />
     <Compile Include="Models\Domain\TicketType.cs" />
     <Compile Include="Models\EmailService.cs" />
+    <Compile Include="Models\Helper\AppHepler.cs" />
     <Compile Include="Models\Helper\UserRoleHelper.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />

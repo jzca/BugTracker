@@ -16,11 +16,13 @@ namespace BugTracker.Controllers
     {
         private ApplicationDbContext DbContext;
         private readonly UserRoleHelper UserRoleHelper;
+        private readonly AppHepler AppHepler;
 
         public ProjectController()
         {
             DbContext = new ApplicationDbContext();
             UserRoleHelper = new UserRoleHelper(DbContext);
+            AppHepler = new AppHepler(DbContext);
         }
 
         [Authorize(Roles = "Admin, Project Manager")]
@@ -28,7 +30,7 @@ namespace BugTracker.Controllers
         {
             var appUserId = User.Identity.GetUserId();
 
-            var model = DbContext.Projects
+            var model = AppHepler.GetAllProjects()
                 .Select(p => new IndexProjectViewModel
                 {
                     Id = p.Id,
@@ -47,7 +49,7 @@ namespace BugTracker.Controllers
             var appUserId = User.Identity.GetUserId();
             var currentUser = DbContext.Users.Where(i => i.Id == appUserId).FirstOrDefault();
 
-            var model = currentUser.Projects
+            var model = AppHepler.GetProjects4CurrentUser(currentUser)
                 .Select(p => new IndexProjectViewModel
                 {
                     Id = p.Id,
@@ -95,8 +97,7 @@ namespace BugTracker.Controllers
             }
             else
             {
-                projectForSavingProject = DbContext.Projects.FirstOrDefault(
-               p => p.Id == id);
+                projectForSavingProject = AppHepler.GetProjectById(id);
 
                 projectForSavingProject.DateUpdated = DateTime.Now;
 
@@ -122,8 +123,7 @@ namespace BugTracker.Controllers
                 return RedirectToAction(nameof(ProjectController.Index));
             }
 
-            var project = DbContext.Projects.FirstOrDefault(
-                p => p.Id == id.Value);
+            var project = AppHepler.GetProjectById(id);
 
             if (project == null)
             {
@@ -152,14 +152,13 @@ namespace BugTracker.Controllers
                 return RedirectToAction(nameof(ProjectController.Index));
             }
 
-            var allUsers = DbContext.Users.Select(n => new UserProjectViewModel
+            var allUsers = AppHepler.GetAllUsers().Select(n => new UserProjectViewModel
             {
                 Id = n.Id,
                 UserName = n.UserName
             }).ToList();
 
-            var project = DbContext.Projects.FirstOrDefault(
-                p => p.Id == id.Value);
+            var project = AppHepler.GetProjectById(id);
 
             var repeated = new UserProjectViewModel();
 
@@ -220,8 +219,8 @@ namespace BugTracker.Controllers
             //    return RedirectToAction(nameof(ProjectController.AssignManagement), new { id = pJid });
             //}
 
-            var project = DbContext.Projects.FirstOrDefault(p => p.Id == pJid);
-            var user = DbContext.Users.FirstOrDefault(p => p.Id == userId);
+            var project = AppHepler.GetProjectById(pJid);
+            var user = AppHepler.GetUserById(userId);
 
             //var userRm = DbContext.Users.Where(p => p.Id == userId).Select(n => new UserProjectViewModel
             //{
@@ -277,8 +276,8 @@ namespace BugTracker.Controllers
         [Authorize(Roles = "Admin, Project Manager")]
         public ActionResult UnAssign(int pJid, string userId)
         {
-            var project = DbContext.Projects.FirstOrDefault(p => p.Id == pJid);
-            var user = DbContext.Users.FirstOrDefault(p => p.Id == userId);
+            var project = AppHepler.GetProjectById(pJid);
+            var user = AppHepler.GetUserById(userId);
 
             bool includedProject = user.Projects.Any(p => p.Id == project.Id);
             if (includedProject)
