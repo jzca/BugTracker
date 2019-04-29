@@ -1,5 +1,7 @@
-﻿using BugTracker.Models;
+﻿using AutoMapper;
+using BugTracker.Models;
 using BugTracker.Models.Domain;
+using BugTracker.Models.Filter;
 using BugTracker.Models.Helper;
 using BugTracker.Models.ViewModel;
 using Microsoft.AspNet.Identity;
@@ -28,7 +30,7 @@ namespace BugTracker.Controllers
         private bool IsSubmitter() { return User.IsInRole("Submitter"); }
         private bool IsDeveloper() { return User.IsInRole("Developer"); }
 
-
+        [LogActionFilter]
         public ActionResult Index()
         {
             bool isAdmin = IsAdmin();
@@ -141,5 +143,19 @@ namespace BugTracker.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Admin")]
+        public ActionResult AccessLog()
+        {
+            var allLogs = DbContext.ActionLogs
+                .Where(p=> p.ActionName.ToLower() != "accesslog")
+                .ToList();
+
+            //allLogs.GroupBy(p => p.ActionName).Count();
+
+            var model = new List<ActionLogViewModel>();
+            model = Mapper.Map<List<ActionLogViewModel>>(allLogs);
+
+            return View(model);
+        }
     }
 }

@@ -193,6 +193,8 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\ActionLogViewModel.cs" />
+    <Compile Include="Models\Domain\ActionLog.cs" />
     <Compile Include="Models\Domain\Project.cs" />
     <Compile Include="Models\Domain\Ticket.cs" />
     <Compile Include="Models\Domain\TicketAttachment.cs" />
@@ -202,6 +204,7 @@
     <Compile Include="Models\Domain\TicketStatus.cs" />
     <Compile Include="Models\Domain\TicketType.cs" />
     <Compile Include="Models\EmailService.cs" />
+    <Compile Include="Models\Filter\LogActionFilter.cs" />
     <Compile Include="Models\Helper\AppHepler.cs" />
     <Compile Include="Models\Helper\UserRoleHelper.cs" />
     <Compile Include="Models\IdentityModels.cs" />
@@ -1875,6 +1878,7 @@
     <Content Include="Views\Ticket\ErroMsg.cshtml" />
     <Content Include="Views\Account\DemoLogin.cshtml" />
     <Content Include="Views\Ticket\EditComment.cshtml" />
+    <Content Include="Views\Home\AccessLog.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

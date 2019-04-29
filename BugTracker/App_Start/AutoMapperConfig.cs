@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BugTracker.Models;
 using BugTracker.Models.Domain;
 using BugTracker.Models.ViewModel.Ticket;
 using System;
@@ -16,6 +17,7 @@ namespace BugTracker.App_Start
             {
                 cfg.CreateMap<TicketAttachment, AttachmentDetailViewModel>();
                 cfg.CreateMap<TicketComment, CommentDetailViewModel>();
+                cfg.CreateMap<ActionLog, ActionLogViewModel>();
             });
         }
 

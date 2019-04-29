@@ -29,6 +29,7 @@ namespace BugTracker.Models
         public virtual List<TicketAttachment> TicketAttachments { get; set; }
 
 
+
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
         {
             // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
@@ -52,6 +53,7 @@ namespace BugTracker.Models
         public DbSet<TicketStatus> TicketStatuses { get; set; }
         public DbSet<TicketType> TicketTypes { get; set; }
         public DbSet<TicketComment> TicketComments { get; set; }
+        public DbSet<ActionLog> ActionLogs { get; set; }
 
         public static ApplicationDbContext Create()
         {
