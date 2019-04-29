@@ -12,6 +12,7 @@ namespace BugTracker.Models.ViewModel.Ticket
 
             TicketComments = new List<CommentDetailViewModel>();
             TicketAttachments = new List<AttachmentDetailViewModel>();
+            TicketHistories = new List<HistoryDetailViewModel>();
         }
 
 
@@ -31,6 +32,7 @@ namespace BugTracker.Models.ViewModel.Ticket
 
         public virtual List<CommentDetailViewModel> TicketComments { get; set; }
         public virtual List<AttachmentDetailViewModel> TicketAttachments { get; set; }
+        public virtual List<HistoryDetailViewModel> TicketHistories { get; set; }
 
         public bool AreYouOwner { get; set; }
 

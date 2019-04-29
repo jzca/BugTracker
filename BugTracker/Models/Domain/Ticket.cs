@@ -11,6 +11,8 @@ namespace BugTracker.Models.Domain
         {
             TicketComments = new List<TicketComment>();
             TicketAttachments = new List<TicketAttachment>();
+            TicketHistories = new List<TicketHistory>();
+            TicketNotifications = new List<TicketNotification>();
         }
 
         public int Id { get; set; }
@@ -19,13 +21,13 @@ namespace BugTracker.Models.Domain
         public DateTime DateCreated { get; set; }
         public DateTime? DateUpdated { get; set; }
 
-        public virtual ApplicationUser Creator { get; set;}
-        public string  CreatorId { get; set; }
+        public virtual ApplicationUser Creator { get; set; }
+        public string CreatorId { get; set; }
 
         public virtual ApplicationUser Assignee { get; set; }
         public string AssigneeId { get; set; }
 
-        public virtual Project  Project { get; set; }
+        public virtual Project Project { get; set; }
         public int ProjectId { get; set; }
 
         public virtual List<TicketComment> TicketComments { get; set; }
@@ -36,6 +38,8 @@ namespace BugTracker.Models.Domain
         public int TicketStatusId { get; set; }
         public virtual TicketPriority TicketPriority { get; set; }
         public int TicketPriorityId { get; set; }
+        public virtual List<TicketHistory> TicketHistories { get; set; }
+        public virtual List<TicketNotification> TicketNotifications { get; set; }
 
 
     }

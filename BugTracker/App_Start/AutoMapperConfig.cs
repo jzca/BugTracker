@@ -18,6 +18,11 @@ namespace BugTracker.App_Start
                 cfg.CreateMap<TicketAttachment, AttachmentDetailViewModel>();
                 cfg.CreateMap<TicketComment, CommentDetailViewModel>();
                 cfg.CreateMap<ActionLog, ActionLogViewModel>();
+                cfg.CreateMap<TicketHistory, HistoryDetailViewModel>()
+                                 .ForMember(t => t.ModifierName,
+                                    source => source
+                                              .MapFrom(property =>
+                                              property.Modifier.DisplayName)); ;
             });
         }
 

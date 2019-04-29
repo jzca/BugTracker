@@ -13,6 +13,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using static BugTracker.Models.Domain.TicketEnum;
 
 namespace BugTracker.Controllers
 {
@@ -225,6 +226,7 @@ namespace BugTracker.Controllers
                 ticketForSaving.CreatorId = appUserId;
                 ticketForSaving.TicketStatusId = AppHepler.GetDefaultTicketStatus();
                 DbContext.Tickets.Add(ticketForSaving);
+
             }
             else
             {
@@ -258,8 +260,50 @@ namespace BugTracker.Controllers
                         return View(MStateNotValid(id));
                     }
 
+                    var statusChanged = ticketForSaving.TicketStatusId != Convert.ToInt32(formData.GetTicketStatus);
+
+                    CreateHistory(ticketForSaving, HistoryProperty.TicketStatus,
+                        statusChanged, appUserId,
+                        ticketForSaving.TicketStatusId.ToString(), formData.GetTicketStatus);
+
                     ticketForSaving.TicketStatusId = Convert.ToInt32(formData.GetTicketStatus);
+
                 }
+            }
+
+            if (id.HasValue)
+            {
+                var titleChanged = ticketForSaving.Title != formData.Title;
+
+                CreateHistory(ticketForSaving, HistoryProperty.TicketTitle,
+                    titleChanged, appUserId,
+                    ticketForSaving.Title, formData.Title);
+
+                var descriptionChanged = ticketForSaving.Description != formData.Description;
+
+                CreateHistory(ticketForSaving, HistoryProperty.TicketDescription,
+                    descriptionChanged, appUserId,
+                    ticketForSaving.Description, formData.Description);
+
+                var projectChanged = ticketForSaving.ProjectId != Convert.ToInt32(formData.GetProjectBelong);
+
+                CreateHistory(ticketForSaving, HistoryProperty.ProjectBelong,
+                    projectChanged, appUserId,
+                    ticketForSaving.ProjectId.ToString(), formData.GetProjectBelong);
+
+                var ticketPriorityChanged = ticketForSaving.TicketPriorityId != Convert.ToInt32(formData.GetTicketPriority);
+
+                CreateHistory(ticketForSaving, HistoryProperty.TicketPriority,
+                    ticketPriorityChanged, appUserId,
+                    ticketForSaving.TicketPriorityId.ToString(), formData.GetTicketPriority);
+
+                var ticketTypeChanged = ticketForSaving.TicketTypeId != Convert.ToInt32(formData.GetTicketType);
+
+                CreateHistory(ticketForSaving, HistoryProperty.TicketType,
+                    ticketTypeChanged, appUserId,
+                    ticketForSaving.TicketTypeId.ToString(), formData.GetTicketType);
+
+
             }
 
             ticketForSaving.Title = formData.Title;
@@ -267,6 +311,8 @@ namespace BugTracker.Controllers
             ticketForSaving.ProjectId = Convert.ToInt32(formData.GetProjectBelong);
             ticketForSaving.TicketPriorityId = Convert.ToInt32(formData.GetTicketPriority);
             ticketForSaving.TicketTypeId = Convert.ToInt32(formData.GetTicketType);
+
+
 
             DbContext.SaveChanges();
 
@@ -284,7 +330,6 @@ namespace BugTracker.Controllers
 
             return RedirectToAction(nameof(TicketController.Index));
         }
-
 
         [HttpGet]
         [Authorize(Roles = "Admin, Project Manager, Submitter, Developer")]
@@ -417,7 +462,23 @@ namespace BugTracker.Controllers
 
             if (freshTicket)
             {
+                var appUserId = User.Identity.GetUserId();
+                var assigneeChanged = ticket.AssigneeId != userId;
+
+                var assigneeName = "None";
+
+                if (ticket.AssigneeId != null)
+                {
+                    assigneeName = ticket.Assignee.DisplayName;
+                }
+
+                CreateHistory(ticket, HistoryProperty.Assignee,
+                    assigneeChanged, appUserId,
+                    assigneeName, user.DisplayName);
+
                 user.AssignedTickets.Add(ticket);
+
+
                 DbContext.SaveChanges();
             }
 
@@ -435,6 +496,13 @@ namespace BugTracker.Controllers
             bool includedTicket = user.AssignedTickets.Any(p => p.Id == ticket.Id);
             if (includedTicket)
             {
+                var appUserId = User.Identity.GetUserId();
+                var assigneeChanged = true;
+
+                CreateHistory(ticket, HistoryProperty.Assignee,
+                    assigneeChanged, appUserId,
+                    ticket.Assignee.DisplayName, "None");
+
                 user.AssignedTickets.Remove(ticket);
                 DbContext.SaveChanges();
             }
@@ -496,8 +564,9 @@ namespace BugTracker.Controllers
             model.CreatorName = ticket.Creator.DisplayName;
             model.DateCreated = ticket.DateCreated;
             model.DateUpdated = ticket.DateUpdated;
-            model.TicketAttachments = Mapper.Map<List<AttachmentDetailViewModel>>(ticket.TicketAttachments) ;
+            model.TicketAttachments = Mapper.Map<List<AttachmentDetailViewModel>>(ticket.TicketAttachments);
             model.TicketComments = Mapper.Map<List<CommentDetailViewModel>>(ticket.TicketComments);
+            model.TicketHistories = Mapper.Map<List<HistoryDetailViewModel>>(ticket.TicketHistories);
             model.AreYouOwner = true;
 
             if (!IsAdmin() && !IsProjectManager())
@@ -514,7 +583,7 @@ namespace BugTracker.Controllers
 
                 foreach (var a in model.TicketAttachments)
                 {
-                    a.OwnerAttachment= a.CreatorId == appUserId;
+                    a.OwnerAttachment = a.CreatorId == appUserId;
                 }
             }
 
@@ -617,7 +686,7 @@ namespace BugTracker.Controllers
                 Comment = formData.Comment,
                 CreatorId = appUserId,
                 DateCreated = DateTime.Now,
-        };
+            };
 
             DbContext.TicketComments.Add(freshComment);
 
@@ -917,6 +986,7 @@ namespace BugTracker.Controllers
             model.DateUpdated = ticket.DateUpdated;
             model.TicketAttachments = Mapper.Map<List<AttachmentDetailViewModel>>(ticket.TicketAttachments);
             model.TicketComments = Mapper.Map<List<CommentDetailViewModel>>(ticket.TicketComments);
+            model.TicketHistories = Mapper.Map<List<HistoryDetailViewModel>>(ticket.TicketHistories);
             model.AreYouOwner = true;
 
             if (!IsAdmin() && !IsProjectManager())
@@ -942,6 +1012,91 @@ namespace BugTracker.Controllers
 
         }
 
+        private void CreateHistory(Ticket ticket, HistoryProperty historyProperty,
+                    bool changeDetected, string userId, string oldValue, string newValue)
+        {
+            if (changeDetected)
+            {
+                var freshHistory = new TicketHistory()
+                {
+                    TicketId = ticket.Id,
+                    ModifierId = userId,
+                    Property = historyProperty.ToString(),
+                    TimeStamp = DateTime.Now,
+                };
+
+                if (historyProperty == HistoryProperty.ProjectBelong)
+                {
+                    var realOldValue = ticket.Project.Name;
+                    var inputId = Convert.ToInt32(newValue);
+                    var realNewValue = AppHepler.GetProjectById(inputId).Name;
+
+                    AddValueHistory(realOldValue, realNewValue, freshHistory);
+
+                }
+                else if (historyProperty == HistoryProperty.TicketDescription)
+                {
+                    //var realOldValue = ticket.Description;
+                    AddValueHistory(oldValue, newValue, freshHistory);
+                }
+                else if (historyProperty == HistoryProperty.TicketPriority)
+                {
+                    var realOldValue = ticket.TicketPriority.Name;
+                    var inputId = Convert.ToInt32(newValue);
+                    var realNewValue = AppHepler.GetTkPriorityById(inputId).Name;
+                    AddValueHistory(realOldValue, realNewValue, freshHistory);
+                }
+                else if (historyProperty == HistoryProperty.TicketStatus)
+                {
+                    var realOldValue = ticket.TicketStatus.Name;
+                    var inputId = Convert.ToInt32(newValue);
+                    var realNewValue = AppHepler.GetTkStatusById(inputId).Name;
+                    AddValueHistory(realOldValue, realNewValue, freshHistory);
+                }
+                else if (historyProperty == HistoryProperty.TicketType)
+                {
+                    var realOldValue = ticket.TicketType.Name;
+                    var inputId = Convert.ToInt32(newValue);
+                    var realNewValue = AppHepler.GetTkTypeyById(inputId).Name;
+                    AddValueHistory(realOldValue, realNewValue, freshHistory);
+
+                }
+                else if (historyProperty == HistoryProperty.TicketTitle)
+                {
+                    //var realOldValue = ticket.Title;
+                    AddValueHistory(oldValue, newValue, freshHistory);
+                }
+                else if (historyProperty == HistoryProperty.Assignee)
+                {
+                    //var realOldValue = ticket.Assignee.DisplayName;
+                    //var realNewValue = AppHepler.GetUserById(oldValue).DisplayName;
+
+                    AddValueHistory(oldValue, newValue, freshHistory);
+
+                    //if (realNewValue != null)
+                    //{
+                    //    freshHistory.NewValue = realNewValue;
+                    //}
+
+                }
+
+                DbContext.TicketHistories.Add(freshHistory);
+
+                DbContext.SaveChanges();
+            }
+        }
+
+        private void AddValueHistory(string realOldValue, string realNewValue, TicketHistory freshHistory)
+        {
+
+            freshHistory.OldValue = realOldValue;
+
+            if (realNewValue != null)
+            {
+                freshHistory.NewValue = realNewValue;
+            }
+
+        }
 
 
 

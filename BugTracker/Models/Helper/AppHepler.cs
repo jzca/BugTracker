@@ -119,5 +119,19 @@ namespace BugTracker.Models.Helper
             return DbContext.TicketAttachments.Where(p => p.Id == atmId.Value).FirstOrDefault();
         }
 
+        public TicketPriority GetTkPriorityById(int id)
+        {
+            return DbContext.TicketPriorities.FirstOrDefault(p => p.Id == id);
+        }
+
+        public TicketStatus GetTkStatusById(int id)
+        {
+            return DbContext.TicketStatuses.FirstOrDefault(p => p.Id == id);
+        }
+        public TicketType GetTkTypeyById(int id)
+        {
+            return DbContext.TicketTypes.FirstOrDefault(p => p.Id == id);
+        }
+
     }
 }

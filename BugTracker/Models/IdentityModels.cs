@@ -18,6 +18,8 @@ namespace BugTracker.Models
             CreatedTickets = new List<Ticket>();
             AssignedTickets = new List<Ticket>();
             TicketAttachments = new List<TicketAttachment>();
+            TicketHistories = new List<TicketHistory>();
+            TicketNotifications = new List<TicketNotification>();
         }
 
         public string DisplayName { get; set; }
@@ -27,6 +29,8 @@ namespace BugTracker.Models
         [InverseProperty(nameof(Ticket.Assignee))]
         public virtual List<Ticket> AssignedTickets { get; set; }
         public virtual List<TicketAttachment> TicketAttachments { get; set; }
+        public virtual List<TicketHistory> TicketHistories { get; set; }
+        public virtual List<TicketNotification> TicketNotifications { get; set; }
 
 
 
@@ -54,6 +58,8 @@ namespace BugTracker.Models
         public DbSet<TicketType> TicketTypes { get; set; }
         public DbSet<TicketComment> TicketComments { get; set; }
         public DbSet<ActionLog> ActionLogs { get; set; }
+        public DbSet<TicketHistory> TicketHistories { get; set; }
+        public DbSet<TicketNotification> TicketNotifications { get; set; }
 
         public static ApplicationDbContext Create()
         {

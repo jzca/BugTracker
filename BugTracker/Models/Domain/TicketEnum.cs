@@ -10,5 +10,17 @@ namespace BugTracker.Models.Domain
         public enum Type { Bug, Feature, Database, Support }
         public enum Priority { Low, Medium, High }
         public enum Status { Open, Resolved, Rejected }
+
+        public enum HistoryProperty
+        {
+            ProjectBelong,
+            TicketTitle,
+            TicketType,
+            TicketPriority,
+            TicketStatus,
+            TicketDescription,
+            Assignee,
+        }
+
     }
 }

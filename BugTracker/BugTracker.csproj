@@ -200,6 +200,8 @@
     <Compile Include="Models\Domain\TicketAttachment.cs" />
     <Compile Include="Models\Domain\TicketComment.cs" />
     <Compile Include="Models\Domain\TicketEnum.cs" />
+    <Compile Include="Models\Domain\TicketHistory.cs" />
+    <Compile Include="Models\Domain\TicketNotification.cs" />
     <Compile Include="Models\Domain\TicketPriority.cs" />
     <Compile Include="Models\Domain\TicketStatus.cs" />
     <Compile Include="Models\Domain\TicketType.cs" />
@@ -229,6 +231,7 @@
     <Compile Include="Models\ViewModel\Project\UserProjectViewModel.cs" />
     <Compile Include="Models\ViewModel\Ticket\AttachmentDetailViewModel.cs" />
     <Compile Include="Models\ViewModel\Ticket\CommentDetailViewModel.cs" />
+    <Compile Include="Models\ViewModel\Ticket\HistoryDetailViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
