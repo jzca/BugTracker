@@ -35,6 +35,6 @@ namespace BugTracker.Models.ViewModel.Ticket
         public virtual List<HistoryDetailViewModel> TicketHistories { get; set; }
 
         public bool AreYouOwner { get; set; }
-
+        public bool Subscription { get; set; }
     }
 }

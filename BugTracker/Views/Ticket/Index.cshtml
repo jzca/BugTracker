@@ -53,30 +53,10 @@ else
                             <a href="@Url.Action("AssignTicketManagement", "Ticket", new {id = record.Id})">
                                 <i class="fas fa-user-edit" style="margin-bottom:auto"></i>
                             </a>
+                        <td>
                             <a href="@Url.Action("Edit", "Ticket", new { id = record.Id })">
                                 <i class="fas fa-fw fa-wrench" style="margin-top:auto"></i>
                             </a>
-                        </td>
-                        <td>
-                            @using (Html.BeginForm("OptIn", "Ticket", new { tkId = record.Id }, FormMethod.Post))
-                            {
-                                <button type="submit" class="btn btn-primary btn-sm" style="margin-bottom:3px">
-                                    <i class="fas fa-bell"></i>
-                                </button>
-                            }
-                            @using (Html.BeginForm("OptOut", "Ticket", new { tkId = record.Id }, FormMethod.Post))
-                            {
-                                <button type="submit" class="btn btn-primary btn-sm" style="margin-top:3px">
-                                    <i class="far fa-bell-slash"></i>
-                                </button>
-                            }
-
-                            @*<a href="@Url.Action("OptIn", "Ticket", new { id = record.Id })">
-                                    <i class="fas fa-bell"></i>
-                                </a>*@
-                            @*<a href="@Url.Action("OptOut", "Ticket", new { id = record.Id })">
-                                    <i class="far fa-bell-slash"></i>
-                                </a>*@
                         </td>
 
                     </tr>

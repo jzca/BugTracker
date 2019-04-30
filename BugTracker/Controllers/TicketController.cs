@@ -39,7 +39,7 @@ namespace BugTracker.Controllers
             var allTickets = AppHepler.GetAllTickets();
             var appUserId = User.Identity.GetUserId();
 
-            var model = ViewModelIndexTicket(allTickets, appUserId);
+            var model = ViewModelIndexTicket(allTickets);
 
             return View(model);
         }
@@ -78,20 +78,7 @@ namespace BugTracker.Controllers
             var allTickets = AppHepler
                 .GetAllTicketsForDevOrSub(AppHepler.WhichRole.Submitter, appUserId);
 
-            var model = allTickets.Select(b => new IndexTicketViewModel
-            {
-                Id = b.Id,
-                Title = b.Title,
-                AssignedDev = b.Assignee?.DisplayName ?? "Not assgined",
-                CreatorName = b.Creator.DisplayName,
-                ProjectName = b.Project.Name,
-                TicketPriority = b.TicketPriority.Name,
-                TicketStatus = b.TicketStatus.Name,
-                TicketType = b.TicketType.Name,
-                DateCreated = b.DateCreated,
-                DateUpdated = b.DateUpdated,
-
-            }).ToList();
+            var model = ViewModelIndexTicket(allTickets);
 
 
             foreach (var m in model)
@@ -443,64 +430,6 @@ namespace BugTracker.Controllers
         }
 
 
-        private void AddDelNotification(bool addOrDel, int tkId, string userId)
-        {
-            if (addOrDel)
-            {
-                var freshNote = new TicketNotification()
-                {
-                    TicketId = tkId,
-                    UserId = userId,
-                };
-
-                DbContext.TicketNotifications.Add(freshNote);
-            }
-            else
-            {
-                var noteDel = DbContext.TicketNotifications
-                        .Where(p => p.TicketId == tkId && p.UserId == userId)
-                        .FirstOrDefault();
-                if (noteDel != null)
-                {
-                    DbContext.TicketNotifications.Remove(noteDel);
-                }
-
-            }
-
-
-            DbContext.SaveChanges();
-
-        }
-
-        private void SendEmail(Ticket ticket, string modifierId, string title, string message)
-        {
-
-            if ((IsAdmin() || IsProjectManager())
-                    || ticket.AssigneeId != null)
-            {
-                var eService = new EmailService();
-
-                var email = ticket.TicketNotifications.Where(b => b.UserId != modifierId)
-                    .Select(p => p.User.Email).ToList();
-
-                //var email = DbContext.TicketNotifications
-                //    .Where(b => b.UserId != modifierId && b.TicketId == ticket.Id)
-                //    .Select(p => p.User.Email)
-                //    .ToList();
-
-                if (email.Any())
-                {
-                    var subject = $"Changes on {title} of Ticket-{ticket.Id}";
-                    var body = $"Ticket: {ticket.Title}, {message}";
-
-                    eService.SendMuti(email, subject, body);
-                }
-            }
-
-
-        }
-
-
         [HttpPost]
         [Authorize(Roles = "Admin, Project Manager")]
         public ActionResult Assign(int tkId, string userId)
@@ -646,6 +575,8 @@ namespace BugTracker.Controllers
             model.TicketComments = Mapper.Map<List<CommentDetailViewModel>>(ticket.TicketComments);
             model.TicketHistories = Mapper.Map<List<HistoryDetailViewModel>>(ticket.TicketHistories);
             model.AreYouOwner = true;
+            model.Subscription = ticket.TicketNotifications
+                                    .Any(p => p.UserId == appUserId);
 
             if (!IsAdmin() && !IsProjectManager())
             {
@@ -669,9 +600,9 @@ namespace BugTracker.Controllers
 
         }
 
-        private List<IndexTicketViewModel> ViewModelIndexTicket(List<Ticket> tickets, string userId)
+        private List<IndexTicketViewModel> ViewModelIndexTicket(List<Ticket> tickets)
         {
-            var model = tickets.Select(b => new IndexTicketViewModel
+            return tickets.Select(b => new IndexTicketViewModel
             {
                 Id = b.Id,
                 Title = b.Title,
@@ -685,8 +616,6 @@ namespace BugTracker.Controllers
                 DateUpdated = b.DateUpdated,
 
             }).ToList();
-
-            return model;
         }
 
 
@@ -698,12 +627,12 @@ namespace BugTracker.Controllers
             var appUserId = User.Identity.GetUserId();
             AddDelNotification(true, tkId, appUserId);
 
-            //var ticket = AppHepler.GetTicketById(tkId);
-            //var model = MStateNotValidDetail(ticket, appUserId);
-            var allTickets = AppHepler.GetAllTickets();
-            var model = ViewModelIndexTicket(allTickets, appUserId);
+            var ticket = AppHepler.GetTicketById(tkId);
+            var model = MStateNotValidDetail(ticket, appUserId);
+            //var allTickets = AppHepler.GetAllTickets();
+            //var model = ViewModelIndexTicket(allTickets);
 
-            return View(nameof(TicketController.Index), model);
+            return View(nameof(TicketController.Detail), model);
         }
 
 
@@ -715,15 +644,13 @@ namespace BugTracker.Controllers
             var appUserId = User.Identity.GetUserId();
             AddDelNotification(false, tkId, appUserId);
 
+            var ticket = AppHepler.GetTicketById(tkId);
+            var model = MStateNotValidDetail(ticket, appUserId);
 
+            //var allTickets = AppHepler.GetAllTickets();
+            //var model = ViewModelIndexTicket(allTickets);
 
-            //var ticket = AppHepler.GetTicketById(tkId);
-            //var model = MStateNotValidDetail(ticket, appUserId);
-
-            var allTickets = AppHepler.GetAllTickets();
-            var model = ViewModelIndexTicket(allTickets, appUserId);
-
-            return View(nameof(TicketController.Index), model);
+            return View(nameof(TicketController.Detail), model);
 
         }
 
@@ -1134,6 +1061,8 @@ namespace BugTracker.Controllers
             model.TicketComments = Mapper.Map<List<CommentDetailViewModel>>(ticket.TicketComments);
             model.TicketHistories = Mapper.Map<List<HistoryDetailViewModel>>(ticket.TicketHistories);
             model.AreYouOwner = true;
+            model.Subscription = ticket.TicketNotifications
+                        .Any(p => p.UserId == theUserId);
 
             if (!IsAdmin() && !IsProjectManager())
             {
@@ -1182,7 +1111,6 @@ namespace BugTracker.Controllers
                 }
                 else if (historyProperty == HistoryProperty.TicketDescription)
                 {
-                    //var realOldValue = ticket.Description;
                     AddValueHistory(oldValue, newValue, freshHistory);
                 }
                 else if (historyProperty == HistoryProperty.TicketPriority)
@@ -1209,21 +1137,11 @@ namespace BugTracker.Controllers
                 }
                 else if (historyProperty == HistoryProperty.TicketTitle)
                 {
-                    //var realOldValue = ticket.Title;
                     AddValueHistory(oldValue, newValue, freshHistory);
                 }
                 else if (historyProperty == HistoryProperty.Assignee)
                 {
-                    //var realOldValue = ticket.Assignee.DisplayName;
-                    //var realNewValue = AppHepler.GetUserById(oldValue).DisplayName;
-
                     AddValueHistory(oldValue, newValue, freshHistory);
-
-                    //if (realNewValue != null)
-                    //{
-                    //    freshHistory.NewValue = realNewValue;
-                    //}
-
                 }
 
                 DbContext.TicketHistories.Add(freshHistory);
@@ -1244,6 +1162,65 @@ namespace BugTracker.Controllers
 
         }
 
+        private void AddDelNotification(bool addOrDel, int tkId, string userId)
+        {
+            if (addOrDel)
+            {
+                bool existedNote = DbContext.TicketNotifications
+                    .Any(p => p.TicketId == tkId && p.UserId == userId);
+
+                if (!existedNote)
+                {
+                    var freshNote = new TicketNotification()
+                    {
+                        TicketId = tkId,
+                        UserId = userId,
+                    };
+
+                    DbContext.TicketNotifications.Add(freshNote);
+
+                }
+
+            }
+            else
+            {
+                var noteDel = DbContext.TicketNotifications
+                        .Where(p => p.TicketId == tkId && p.UserId == userId)
+                        .FirstOrDefault();
+                if (noteDel != null)
+                {
+                    DbContext.TicketNotifications.Remove(noteDel);
+                }
+
+            }
+
+
+            DbContext.SaveChanges();
+
+        }
+
+        private void SendEmail(Ticket ticket, string modifierId, string title, string message)
+        {
+
+            if ((IsAdmin() || IsProjectManager())
+                    || ticket.AssigneeId != null)
+            {
+                var eService = new EmailService();
+
+                var email = ticket.TicketNotifications.Where(b => b.UserId != modifierId)
+                    .Select(p => p.User.Email).ToList();
+
+                if (email.Any())
+                {
+                    var subject = $"Changes on {title} of Ticket-{ticket.Id}";
+                    var body = $"Ticket: {ticket.Title}, {message}";
+
+                    eService.SendMuti(email, subject, body);
+                }
+            }
+
+
+        }
 
 
 

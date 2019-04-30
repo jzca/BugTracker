@@ -46,6 +46,41 @@
 }
 else
 {
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Opt-In/Out Notification</h6>
+        </div>
+        <div class="card-body">
+
+            @if (Model.Subscription)
+            {
+                using (Html.BeginForm("OptOut", "Ticket", new { tkId = Model.Id }, FormMethod.Post, new { @class = "d-inline-flex" }))
+                {
+                    <button type="submit" class="btn btn-danger btn-icon-split">
+                        <span class="icon text-white-50">
+                            <i class="far fa-bell-slash"></i>
+                        </span>
+                        <span class="text">Opt Out</span>
+                    </button>
+                }
+            }
+            else
+            {
+                using (Html.BeginForm("OptIn", "Ticket", new { tkId = Model.Id }, FormMethod.Post, new { @class = "d-inline-flex" }))
+                {
+                    <button type="submit" class="btn btn-success btn-icon-split">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-bell"></i>
+                        </span>
+                        <span class="text">Opt In</span>
+                    </button>
+                }
+            }
+        </div>
+    </div>
+
+
     <div class="card shadow mb-4">
         <div class="card-body">
             <div class="table-responsive">
@@ -116,7 +151,7 @@ else
                                     <td>@history.Property</td>
                                     <td>@history.OldValue</td>
                                     <td>@history.NewValue</td>
-                                    <td>@history.ModifierName</td>  
+                                    <td>@history.ModifierName</td>
                                     <td>@history.TimeStamp</td>
                                 </tr>
                             }
