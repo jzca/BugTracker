@@ -133,5 +133,14 @@ namespace BugTracker.Models.Helper
             return DbContext.TicketTypes.FirstOrDefault(p => p.Id == id);
         }
 
+        public TicketNotification GetTkNoteById(int? id)
+        {
+            return DbContext.TicketNotifications.FirstOrDefault(p => p.Id == id.Value);
+        }
+
+        public List<TicketNotification> GetQualifiedTkNoteByTkId(int id)
+        {
+            return DbContext.TicketNotifications.Where(p => p.TicketId == id).ToList();
+        }
     }
 }

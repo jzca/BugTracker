@@ -23,6 +23,7 @@ namespace BugTracker.Controllers
         private ApplicationDbContext DbContext;
         private readonly UserRoleHelper UserRoleHelper;
         private readonly AppHepler AppHepler;
+        private bool ReciveNote { get; set; }
 
         public TicketController()
         {
@@ -446,6 +447,37 @@ namespace BugTracker.Controllers
             return View(model);
         }
 
+
+        private void AddDelNotification(bool addOrDel, int tkId, string userId, int? noteId)
+        {
+            if (addOrDel)
+            {
+                var freshNote = new TicketNotification()
+                {
+                    TicketId = tkId,
+                    UserId = userId,
+                };
+
+                DbContext.TicketNotifications.Add(freshNote);
+            }
+            else
+            {
+                var noteDel = AppHepler.GetTkNoteById(noteId);
+                DbContext.TicketNotifications.Remove(noteDel);
+
+            }
+
+
+            DbContext.SaveChanges();
+
+        }
+
+        private void SendEmail(Ticket ticket)
+        {
+            var emailSend = ticket.TicketNotifications.Select(p => p.User.Email);
+        }
+
+
         [HttpPost]
         [Authorize(Roles = "Admin, Project Manager")]
         public ActionResult Assign(int tkId, string userId)
@@ -477,6 +509,17 @@ namespace BugTracker.Controllers
                     assigneeName, user.DisplayName);
 
                 user.AssignedTickets.Add(ticket);
+
+                AddDelNotification(true, tkId, userId, null);
+
+                var allAdmins = UserRoleHelper.UsersInRole("Admin");
+                var allPms = UserRoleHelper.UsersInRole("Project Manager");
+
+                allAdmins.ForEach(p => AddDelNotification(true, tkId, p.Id, null));
+                allPms.ForEach(p => AddDelNotification(true, tkId, p.Id, null));
+
+
+
 
 
                 DbContext.SaveChanges();
@@ -588,6 +631,44 @@ namespace BugTracker.Controllers
             }
 
             return View(model);
+
+        }
+
+
+        [HttpPost]
+        public ActionResult OptIn(int tkId)
+        {
+            ReciveNote = true;
+            var appUserId = User.Identity.GetUserId();
+
+            var existedNote = DbContext.TicketNotifications
+                .Any(p => p.TicketId == tkId && p.UserId == appUserId);
+            if (!existedNote)
+            {
+                AddDelNotification(true, tkId, appUserId, null);
+            }
+
+            var ticket = AppHepler.GetTicketById(tkId);
+            var model = MStateNotValidDetail(ticket, appUserId);
+            return View(nameof(TicketController.Detail), model);
+        }
+
+
+        [HttpPost]
+        public ActionResult OptOut(int tkId)
+        {
+            ReciveNote = false;
+            var appUserId = User.Identity.GetUserId();
+
+            var existedNoteId = DbContext.TicketNotifications
+                .Where(p => p.TicketId == tkId && p.UserId == appUserId)
+                .Select(b => b.Id).FirstOrDefault();
+
+            AddDelNotification(false, tkId, appUserId, existedNoteId);
+
+            var ticket = AppHepler.GetTicketById(tkId);
+            var model = MStateNotValidDetail(ticket, appUserId);
+            return View(nameof(TicketController.Detail), model);
 
         }
 

@@ -30,6 +30,7 @@ else
                     <th>Updated</th>
                     <th></th>
                     <th></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -58,6 +59,27 @@ else
                             <a href="@Url.Action("Edit", "Ticket", new { id = record.Id })">
                                 <i class="fas fa-fw fa-wrench"></i>
                             </a>
+                        </td>
+                        <td>
+                            @using (Html.BeginForm("OptIn", "Ticket", new { tkId = record.Id }, FormMethod.Post))
+                            {
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-bell"></i>
+                                </button>
+                            }
+                            @using (Html.BeginForm("OptOut", "Ticket", new { tkId = record.Id }, FormMethod.Post))
+                            {
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <i class="far fa-bell-slash"></i>
+                                </button>
+                            }
+
+                            @*<a href="@Url.Action("OptIn", "Ticket", new { id = record.Id })">
+                                    <i class="fas fa-bell"></i>
+                                </a>*@
+                            @*<a href="@Url.Action("OptOut", "Ticket", new { id = record.Id })">
+                                    <i class="far fa-bell-slash"></i>
+                                </a>*@
                         </td>
 
                     </tr>

@@ -35,7 +35,7 @@ namespace BugTracker.Models.Helper
             var result = userManager.RemoveFromRole(userId, roleName);
             return result.Succeeded;
         }
-        public ICollection<ApplicationUser> UsersInRole(string roleName)
+        public List<ApplicationUser> UsersInRole(string roleName)
         {
             var resultList = new List<ApplicationUser>();
             var List = userManager.Users.ToList();
@@ -46,7 +46,7 @@ namespace BugTracker.Models.Helper
             }
             return resultList;
         }
-        public ICollection<ApplicationUser> UsersNotInRole(string roleName)
+        public List<ApplicationUser> UsersNotInRole(string roleName)
         {
             var resultList = new List<ApplicationUser>();
             var List = userManager.Users.ToList();

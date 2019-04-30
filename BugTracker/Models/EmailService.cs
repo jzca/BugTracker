@@ -39,6 +39,22 @@ namespace BugTracker.Models
 
         }
 
+        public void SendMuti(List<string> to, string subject, string body)
+        {
+            var message = new MailMessage();
+            message.From = new MailAddress(SmtpFrom);
+            to.ForEach(p => message.To.Add(p));
+            message.Body = body;
+            message.Subject = subject;
+            message.IsBodyHtml = true;
+
+            var smtpClient = new SmtpClient(SmtpHost, SmtpPort);
+            smtpClient.Credentials = new NetworkCredential(SmtpUsername, SmtpPassword);
+            smtpClient.EnableSsl = true;
+            smtpClient.Send(message);
+
+        }
+
         public Task SendAsync(IdentityMessage message)
         {
             // run async function for me
