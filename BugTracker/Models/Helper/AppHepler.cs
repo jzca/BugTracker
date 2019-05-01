@@ -29,12 +29,12 @@ namespace BugTracker.Models.Helper
         public Project GetProjectById(int? id)
         {
             return DbContext.Projects.FirstOrDefault(
-               p => p.Id == id.Value);
+               p => p.Archived == false && p.Id == id.Value);
         }
 
         public List<Project> GetAllProjects()
         {
-            return DbContext.Projects.ToList();
+            return DbContext.Projects.Where(p => p.Archived == false).ToList();
         }
 
         public List<Project> GetProjects4CurrentUser(ApplicationUser user)
@@ -44,7 +44,7 @@ namespace BugTracker.Models.Helper
         public List<Project> GetProjects4CurrentUserById(string userId)
         {
             return DbContext.Projects
-                .Where(p => p.Users.Any(m => m.Id == userId)).ToList();
+                .Where(p => p.Archived == false && p.Users.Any(m => m.Id == userId)).ToList();
         }
 
         public ApplicationUser GetUserById(string userId)
@@ -68,13 +68,13 @@ namespace BugTracker.Models.Helper
 
         public Ticket GetTicketById(int? tkId)
         {
-            return DbContext.Tickets.FirstOrDefault(p => p.Id == tkId.Value);
+            return DbContext.Tickets.FirstOrDefault(p => p.Project.Archived == false && p.Id == tkId.Value);
         }
 
 
         public List<Ticket> GetAllTickets()
         {
-            return DbContext.Tickets.ToList();
+            return DbContext.Tickets.Where(p => p.Project.Archived == false).ToList();
         }
 
         public List<Ticket> GetAllTicketsForDevOrSub(WhichRole who, string userId)
@@ -85,6 +85,7 @@ namespace BugTracker.Models.Helper
             if (who == WhichRole.Developer)
             {
                 ticketsGot = DbContext.Tickets
+                .Where(p => p.Project.Archived == false)
                 .Where(n => n.Project.Users.Any(m => m.Id == userId)
                 || n.AssigneeId == userId)
                 .ToList();
@@ -92,8 +93,9 @@ namespace BugTracker.Models.Helper
             else if (who == WhichRole.Submitter)
             {
                 ticketsGot = DbContext.Tickets
+                .Where(p => p.Project.Archived == false)
                 .Where(n => n.Project.Users.Any(m => m.Id == userId)
-                || n.CreatorId == userId)
+               || n.CreatorId == userId)
                 .ToList();
             }
 

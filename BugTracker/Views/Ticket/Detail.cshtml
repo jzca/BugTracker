@@ -1,6 +1,8 @@
 ﻿@model DetailTicketViewModel
 @{
-    ViewBag.Title = "Detail";
+                /**/
+
+                ViewBag.Title = "Detail";
 }
 
 @section css  {
@@ -46,308 +48,311 @@
 }
 else
 {
+    if(User.IsInRole("Admin") || User.IsInRole("Project Manager"))
+        {
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Opt-In/Out Notification</h6>
+            </div>
+            <div class="card-body">
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Opt-In/Out Notification</h6>
+                @if (Model.Subscription)
+                {
+                    using (Html.BeginForm("OptOut", "Ticket", new { tkId = Model.Id }, FormMethod.Post, new { @class = "d-inline-flex" }))
+                    {
+                        <button type="submit" class="btn btn-danger btn-icon-split">
+                            <span class="icon text-white-50">
+                                <i class="far fa-bell-slash"></i>
+                            </span>
+                            <span class="text">Opt Out</span>
+                        </button>
+                    }
+                }
+                else
+                {
+                    using (Html.BeginForm("OptIn", "Ticket", new { tkId = Model.Id }, FormMethod.Post, new { @class = "d-inline-flex" }))
+                    {
+                        <button type="submit" class="btn btn-success btn-icon-split">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-bell"></i>
+                            </span>
+                            <span class="text">Opt In</span>
+                        </button>
+                    }
+                }
+            </div>
         </div>
-        <div class="card-body">
+    }
 
-            @if (Model.Subscription)
-            {
-                using (Html.BeginForm("OptOut", "Ticket", new { tkId = Model.Id }, FormMethod.Post, new { @class = "d-inline-flex" }))
-                {
-                    <button type="submit" class="btn btn-danger btn-icon-split">
-                        <span class="icon text-white-50">
-                            <i class="far fa-bell-slash"></i>
-                        </span>
-                        <span class="text">Opt Out</span>
-                    </button>
-                }
-            }
-            else
-            {
-                using (Html.BeginForm("OptIn", "Ticket", new { tkId = Model.Id }, FormMethod.Post, new { @class = "d-inline-flex" }))
-                {
-                    <button type="submit" class="btn btn-success btn-icon-split">
-                        <span class="icon text-white-50">
-                            <i class="fas fa-bell"></i>
-                        </span>
-                        <span class="text">Opt In</span>
-                    </button>
-                }
-            }
+
+
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Ticket title</th>
+                        <th>Project name</th>
+                        <th>Assigned deveopler</th>
+                        <th>Creator</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Created</th>
+                        <th>Updated</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>@Model.Title</td>
+                        <td>@Model.ProjectName</td>
+                        <td>@Model.AssignedDev</td>
+                        <td>@Model.CreatorName</td>
+                        <td>@Model.TicketType</td>
+                        <td>@Model.TicketStatus</td>
+                        <td>@Model.TicketPriority</td>
+                        <td>@Model.DateCreated</td>
+                        <td>@Model.DateUpdated</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
+</div>
 
 
-    <div class="card shadow mb-4">
-        <div class="card-body">
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Ticket Description</h6>
+    </div>
+    <div class="card-body">
+        @Model.Description
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Histories</h6>
+    </div>
+    <div class="card-body cm-bd">
+        @if (Model.TicketHistories.Any())
+        {
             <div class="table-responsive">
-                <table class="table table-bordered">
+                <table class="table table-striped table-auto-sort">
                     <thead>
                         <tr>
-                            <th>Ticket title</th>
-                            <th>Project name</th>
-                            <th>Assigned deveopler</th>
-                            <th>Creator</th>
-                            <th>Type</th>
-                            <th>Status</th>
-                            <th>Priority</th>
-                            <th>Created</th>
-                            <th>Updated</th>
+                            <th>Property</th>
+                            <th>Old Value</th>
+                            <th>New Value</th>
+                            <th>Modifier</th>
+                            <th>Time Stamp</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>@Model.Title</td>
-                            <td>@Model.ProjectName</td>
-                            <td>@Model.AssignedDev</td>
-                            <td>@Model.CreatorName</td>
-                            <td>@Model.TicketType</td>
-                            <td>@Model.TicketStatus</td>
-                            <td>@Model.TicketPriority</td>
-                            <td>@Model.DateCreated</td>
-                            <td>@Model.DateUpdated</td>
-                        </tr>
+                        @foreach (var history in Model.TicketHistories)
+                        {
+                            <tr>
+                                <td>@history.Property</td>
+                                <td>@history.OldValue</td>
+                                <td>@history.NewValue</td>
+                                <td>@history.ModifierName</td>
+                                <td>@history.TimeStamp</td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>
-        </div>
+        }
     </div>
+</div>
 
-
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Ticket Description</h6>
-        </div>
-        <div class="card-body">
-            @Model.Description
-        </div>
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Attachments</h6>
     </div>
+    <div class="card-body cm-bd">
+        @if (Model.TicketAttachments.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-auto-sort">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>FileUrl</th>
+                            <th>Uploader</th>
+                            <th>Date Uploaded</th>
+                            <th>Delete</th>
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Histories</h6>
-        </div>
-        <div class="card-body cm-bd">
-            @if (Model.TicketHistories.Any())
-            {
-                <div class="table-responsive">
-                    <table class="table table-striped table-auto-sort">
-                        <thead>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var file in Model.TicketAttachments)
+                        {
                             <tr>
-                                <th>Property</th>
-                                <th>Old Value</th>
-                                <th>New Value</th>
-                                <th>Modifier</th>
-                                <th>Time Stamp</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var history in Model.TicketHistories)
-                            {
-                                <tr>
-                                    <td>@history.Property</td>
-                                    <td>@history.OldValue</td>
-                                    <td>@history.NewValue</td>
-                                    <td>@history.ModifierName</td>
-                                    <td>@history.TimeStamp</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-        </div>
-    </div>
-
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Attachments</h6>
-        </div>
-        <div class="card-body cm-bd">
-            @if (Model.TicketAttachments.Any())
-            {
-                <div class="table-responsive">
-                    <table class="table table-striped table-auto-sort">
-                        <thead>
-                            <tr>
-                                <th>Description</th>
-                                <th>FileUrl</th>
-                                <th>Uploader</th>
-                                <th>Date Uploaded</th>
-                                <th>Delete</th>
-
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var file in Model.TicketAttachments)
-                            {
-                                <tr>
-                                    <td>@file.Description</td>
+                                <td>@file.Description</td>
+                                <td>
+                                    <a href="@Url.Content(file.FileUrl)"
+                                       target="_blank">
+                                        @file.FileUrl
+                                    </a>
+                                </td>
+                                <td>@file.Creator.DisplayName</td>
+                                <td>@file.DateCreated</td>
+                                @if (User.IsInRole("Admin") || User.IsInRole("Project Manager") || file.OwnerAttachment)
+                                {
                                     <td>
-                                        <a href="@Url.Content(file.FileUrl)"
-                                           target="_blank">
-                                            @file.FileUrl
-                                        </a>
+                                        @using (Html.BeginForm("DeleteAttachment", "Ticket", new { id = file.Id, tkId = Model.Id }, FormMethod.Post))
+                                        {
+                                            <button type="submit" class="btn btn-primary btn-sm">
+                                                <i class="far fa-trash-alt"></i>
+                                            </button>
+                                        }
                                     </td>
-                                    <td>@file.Creator.DisplayName</td>
-                                    <td>@file.DateCreated</td>
-                                    @if (User.IsInRole("Admin") || User.IsInRole("Project Manager") || file.OwnerAttachment)
-                                    {
-                                        <td>
-                                            @using (Html.BeginForm("DeleteAttachment", "Ticket", new { id = file.Id, tkId = Model.Id }, FormMethod.Post))
-                                            {
-                                                <button type="submit" class="btn btn-primary btn-sm">
-                                                    <i class="far fa-trash-alt"></i>
-                                                </button>
-                                            }
-                                        </td>
-                                    }
-                                    else
-                                    {
-                                        <td><i class="fas fa-ban"></i></td>
-                                    }
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
+                                }
+                                else
+                                {
+                                    <td><i class="fas fa-ban"></i></td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
 
-            @if (Model.AreYouOwner)
-            {
-                <div class="add-file give-space-2">
-                    <i class="fas fa-upload fa-2x"></i>
-                </div>
-            }
+        @if (Model.AreYouOwner)
+        {
+            <div class="add-file give-space-2">
+                <i class="fas fa-upload fa-2x"></i>
+            </div>
+        }
 
-            @Html.ValidationSummary(false)
+        @Html.ValidationSummary(false)
 
-        </div>
     </div>
+</div>
 
     if (Model.AreYouOwner)
     {
-        <div class="card shadow mb-4 upload-file" style="display: none">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Upload a file</h6>
-            </div>
-            @using (Html.BeginForm("Attachment", "Ticket", new { id = Model.Id }, FormMethod.Post,
-            new
-            {
-                @class = "card-body",
-                enctype = "multipart/form-data"
-            }))
-            {
-                <div>
-                    <input type="text" name="Description" class="give-space form-control col-md-2" />
-                </div>
-                <div>
-                    <input type="file" name="Media" style="font-size:15px;" class="give-space" />
-                </div>
-                <div>
-                    <button type="submit" class="btn btn-primary give-space">Upload</button>
-                </div>
-            }
+<div class="card shadow mb-4 upload-file" style="display: none">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Upload a file</h6>
+    </div>
+    @using (Html.BeginForm("Attachment", "Ticket", new { id = Model.Id }, FormMethod.Post,
+    new
+    {
+        @class = "card-body",
+        enctype = "multipart/form-data"
+    }))
+    {
+        <div>
+            <input type="text" name="Description" class="give-space form-control col-md-2" />
         </div>
+        <div>
+            <input type="file" name="Media" style="font-size:15px;" class="give-space" />
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary give-space">Upload</button>
+        </div>
+    }
+</div>
     }
 
 
 
 
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Comments</h6>
-        </div>
-        <div class="card-body">
-            @if (Model.TicketComments.Any())
-            {
-                <div class="table-responsive">
-                    <table class="table table-striped table-auto-sort">
-                        <thead>
-                            <tr>
-                                <th>Comment</th>
-                                <th>Creator</th>
-                                <th>Date Created</th>
-                                <th>Edit</th>
-                                <th>Delete</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var cm in Model.TicketComments)
-                            {
-                                <tr>
-                                    <td>@cm.Comment</td>
-                                    <td>@cm.Creator.DisplayName</td>
-                                    <td>@cm.DateCreated</td>
-
-                                    @if (User.IsInRole("Admin") || User.IsInRole("Project Manager") || cm.OwnerComment)
-                                    {
-                                        <td>
-                                            <a href="@Url.Action("EditComment", "Ticket", new { id = cm.Id})">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                        </td>
-                                        <td>
-                                            @using (Html.BeginForm("DeleteComment", "Ticket", new { id = cm.Id, tkId = Model.Id }, FormMethod.Post))
-                                            {
-                                                <button type="submit" class="btn btn-primary btn-sm">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </button>
-                                            }
-                                        </td>
-
-
-                                    }
-                                    else
-                                    {
-                                        <td><i class="fas fa-ban"></i></td>
-                                        <td><i class="fas fa-ban"></i></td>
-                                    }
-
-
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-
-            @if (Model.AreYouOwner)
-            {
-                <div class="add-comment">
-                    <i class="fas fa-comment-dots fa-2x"></i>
-                </div>
-            }
-
-            @Html.ValidationSummary(false)
-
-        </div>
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Comments</h6>
     </div>
+    <div class="card-body">
+        @if (Model.TicketComments.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-auto-sort">
+                    <thead>
+                        <tr>
+                            <th>Comment</th>
+                            <th>Creator</th>
+                            <th>Date Created</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var cm in Model.TicketComments)
+                        {
+                            <tr>
+                                <td>@cm.Comment</td>
+                                <td>@cm.Creator.DisplayName</td>
+                                <td>@cm.DateCreated</td>
+
+                                @if (User.IsInRole("Admin") || User.IsInRole("Project Manager") || cm.OwnerComment)
+                                {
+                                    <td>
+                                        <a href="@Url.Action("EditComment", "Ticket", new { id = cm.Id})">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        @using (Html.BeginForm("DeleteComment", "Ticket", new { id = cm.Id, tkId = Model.Id }, FormMethod.Post))
+                                        {
+                                            <button type="submit" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        }
+                                    </td>
+
+
+                                }
+                                else
+                                {
+                                    <td><i class="fas fa-ban"></i></td>
+                                    <td><i class="fas fa-ban"></i></td>
+                                }
+
+
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        @if (Model.AreYouOwner)
+        {
+            <div class="add-comment">
+                <i class="fas fa-comment-dots fa-2x"></i>
+            </div>
+        }
+
+        @Html.ValidationSummary(false)
+
+    </div>
+</div>
 
     if (Model.AreYouOwner)
     {
-        <div class="card shadow mb-4 post-comment" style="display: none">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Post a Comment</h6>
-            </div>
-            @using (Html.BeginForm("Comment", "Ticket", new { id = Model.Id }, FormMethod.Post,
-            new
-            {
-                @class = "card-body",
-            }))
-            {
-                <div>
-                    <input type="text" name="Comment" class="give-space form-control col-md-2" />
-                </div>
-                <div>
-                    <button type="submit" class="btn btn-primary give-space">Post</button>
-                </div>
-            }
+<div class="card shadow mb-4 post-comment" style="display: none">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Post a Comment</h6>
+    </div>
+    @using (Html.BeginForm("Comment", "Ticket", new { id = Model.Id }, FormMethod.Post,
+    new
+    {
+        @class = "card-body",
+    }))
+    {
+        <div>
+            <input type="text" name="Comment" class="give-space form-control col-md-2" />
         </div>
+        <div>
+            <button type="submit" class="btn btn-primary give-space">Post</button>
+        </div>
+    }
+</div>
 
     }
 

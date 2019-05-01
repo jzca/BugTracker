@@ -50,7 +50,9 @@ namespace BugTracker.Controllers
             var appUserId = User.Identity.GetUserId();
             var currentUser = AppHepler.GetUserById(appUserId);
 
-            var model = currentUser.CreatedTickets.Select(b => new IndexTicketViewModel
+            var model = currentUser.CreatedTickets
+                .Where(p => p.Project.Archived == false)
+                .Select(b => new IndexTicketViewModel
             {
                 Id = b.Id,
                 Title = b.Title,
@@ -102,7 +104,9 @@ namespace BugTracker.Controllers
             var appUserId = User.Identity.GetUserId();
 
             var ticketAssigned = AppHepler.GetUserById(appUserId)
-                .AssignedTickets.ToList();
+                .AssignedTickets
+                .Where(p => p.Project.Archived == false)
+                .ToList();
 
             var model = ticketAssigned.Select(b => new IndexDevAssignedTicketViewModel
             {
@@ -508,7 +512,7 @@ namespace BugTracker.Controllers
                     AddDelNotification(false, tkId, userId);
 
                     var subject = "Assignee";
-                    var body = $"{subject} is now: empty.";
+                    var body = $"You are removed from it.";
 
                     SendEmail(ticket, appUserId, subject, body);
                 }
@@ -974,7 +978,8 @@ namespace BugTracker.Controllers
                 bool isNotAssignee = ticket.AssigneeId != userId;
 
                 bool hasThisTicket = DbContext.Projects
-                        .Any(p => p.Users.Any(b => b.Id == userId)
+                        .Any(p => p.Archived == false
+                        && p.Users.Any(b => b.Id == userId)
                         && p.Tickets.Any(c => c.Id == ticket.Id)
                         );
 

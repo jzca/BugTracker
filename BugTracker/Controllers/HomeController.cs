@@ -46,19 +46,19 @@ namespace BugTracker.Controllers
             if (!isAdmin && !isProjm)
             {
                 ownedProjects = DbContext.Projects
-                        .Where(p => p.Users.Any(b => b.Id == appUserId))
+                        .Where(p => p.Archived == false && p.Users.Any(b => b.Id == appUserId))
                         .Count();
 
                 if (isDeveloper)
                 {
                     ownedTickets = DbContext.Tickets
-                           .Where(p => p.AssigneeId == appUserId)
+                           .Where(p => p.Project.Archived == false && p.AssigneeId == appUserId)
                            .Count();
                 }
                 else if (isSubmitter)
                 {
                     ownedTickets = DbContext.Tickets
-                            .Where(p => p.CreatorId == appUserId)
+                            .Where(p => p.Project.Archived == false && p.CreatorId == appUserId)
                             .Count();
                 }
 
@@ -71,13 +71,13 @@ namespace BugTracker.Controllers
 
             if (isAdmin || isProjm)
             {
-                var numProjects = DbContext.Projects.Count();
-                var tickets = DbContext.Tickets.ToList();
+                var numProjects = DbContext.Projects.Where(p => p.Archived == false).Count();
+                var tickets = DbContext.Tickets.Where(p => p.Project.Archived == false).ToList();
                 var numTickets = tickets.Count();
 
                 var openTks = tickets
                     .Where(p =>
-                   p.TicketStatus.Name== TicketEnum.Status.Open.ToString())
+                   p.TicketStatus.Name == TicketEnum.Status.Open.ToString())
                     .Count();
 
                 var rejectedTks = tickets
@@ -99,7 +99,7 @@ namespace BugTracker.Controllers
                     YesPm = isProjm,
                     YesSub = isSubmitter,
                     NumOwnedProjects = numProjects,
-                    NumOwnedTickets=numTickets,
+                    NumOwnedTickets = numTickets,
                     NumOpenTk = openTks,
                     NumRejectedTk = rejectedTks,
                     NumResolvedTk = resolvedTks,
@@ -147,7 +147,7 @@ namespace BugTracker.Controllers
         public ActionResult AccessLog()
         {
             var allLogs = DbContext.ActionLogs
-                .Where(p=> p.ActionName.ToLower() != "accesslog")
+                .Where(p => p.ActionName.ToLower() != "accesslog")
                 .ToList();
 
             //allLogs.GroupBy(p => p.ActionName).Count();

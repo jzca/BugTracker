@@ -27,6 +27,7 @@ else
                 <th>Tickets</th>
                 <th></th>
                 <th></th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -47,6 +48,14 @@ else
                         <a href="@Url.Action("Edit", "Project", new { id = record.Id })">
                             <i class="fas fa-fw fa-wrench"></i>
                         </a>
+                    </td>
+                    <td>
+                        @using (Html.BeginForm("Archive", "Project", new { id = record.Id }, FormMethod.Post, new { @class = "" }))
+                        {
+                            <button type="submit" class="btn btn-danger btn-sm btn-circle">
+                                <i class="far fa-trash-alt"></i>
+                            </button>
+                        }
                     </td>
 
                 </tr>

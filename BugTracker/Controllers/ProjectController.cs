@@ -162,7 +162,7 @@ namespace BugTracker.Controllers
 
             var repeated = new UserProjectViewModel();
 
-            foreach(var userRm in project.Users)
+            foreach (var userRm in project.Users)
             {
                 repeated = allUsers.Where(m => m.Id == userRm.Id).FirstOrDefault();
                 allUsers.Remove(repeated);
@@ -229,12 +229,12 @@ namespace BugTracker.Controllers
             //}).FirstOrDefault();
 
             var leftUsers = DbContext.Users
-                .Where(p=> p.Id != userId)
+                .Where(p => p.Id != userId)
                 .Select(n => new UserProjectViewModel
-            {
-                Id = n.Id,
-                UserName = n.UserName
-            }).ToList();
+                {
+                    Id = n.Id,
+                    UserName = n.UserName
+                }).ToList();
 
 
             bool freshProject = true;
@@ -289,6 +289,26 @@ namespace BugTracker.Controllers
             return RedirectToAction(nameof(ProjectController.AssignProjectManagement), new { id = pJid });
         }
 
+        [HttpPost]
+        [Authorize(Roles = "Admin, Project Manager")]
+        public ActionResult Archive(int id)
+        {
+            var project = AppHepler.GetProjectById(id);
+            project.Archived = true;
+            DbContext.SaveChanges();
+            var model = AppHepler.GetAllProjects()
+                    .Select(p => new IndexProjectViewModel
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        DateCreated = p.DateCreated,
+                        DateUpdated = p.DateUpdated,
+                        AssignedUsers = p.Users.Count,
+                        Tickets = p.Tickets.Count,
+                    }).ToList();
+
+            return View(nameof(ProjectController.Index), model);
+        }
 
 
     }
