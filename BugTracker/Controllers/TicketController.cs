@@ -24,7 +24,6 @@ namespace BugTracker.Controllers
         private ApplicationDbContext DbContext;
         private readonly UserRoleHelper UserRoleHelper;
         private readonly AppHepler AppHepler;
-        private bool ReciveNote { get; set; }
 
         public TicketController()
         {
@@ -53,18 +52,18 @@ namespace BugTracker.Controllers
             var model = currentUser.CreatedTickets
                 .Where(p => p.Project.Archived == false)
                 .Select(b => new IndexTicketViewModel
-            {
-                Id = b.Id,
-                Title = b.Title,
-                AssignedDev = b.Assignee?.DisplayName ?? "Not assgined",
-                ProjectName = b.Project.Name,
-                TicketPriority = b.TicketPriority.Name,
-                TicketStatus = b.TicketStatus.Name,
-                TicketType = b.TicketType.Name,
-                DateCreated = b.DateCreated,
-                DateUpdated = b.DateUpdated,
+                {
+                    Id = b.Id,
+                    Title = b.Title,
+                    AssignedDev = b.Assignee?.DisplayName ?? "Not assgined",
+                    ProjectName = b.Project.Name,
+                    TicketPriority = b.TicketPriority.Name,
+                    TicketStatus = b.TicketStatus.Name,
+                    TicketType = b.TicketType.Name,
+                    DateCreated = b.DateCreated,
+                    DateUpdated = b.DateUpdated,
 
-            }).ToList();
+                }).ToList();
 
             return View(model);
         }
@@ -241,7 +240,7 @@ namespace BugTracker.Controllers
                         return View(MStateNotValid(id));
                     }
 
-                    var statusChanged = ticketForSaving.TicketStatusId != Convert.ToInt32(formData.GetTicketStatus);
+                    var statusChanged = ChangeTeller(ticketForSaving, formData, PrevValue.TicketStatusId);
 
                     CreateHistory(ticketForSaving, HistoryProperty.TicketStatus,
                         statusChanged, appUserId,
@@ -260,31 +259,31 @@ namespace BugTracker.Controllers
 
             if (id.HasValue)
             {
-                var titleChanged = ticketForSaving.Title != formData.Title;
+                var titleChanged = ChangeTeller(ticketForSaving, formData, PrevValue.Title);
 
                 CreateHistory(ticketForSaving, HistoryProperty.TicketTitle,
                     titleChanged, appUserId,
                     ticketForSaving.Title, formData.Title);
 
-                var descriptionChanged = ticketForSaving.Description != formData.Description;
+                var descriptionChanged = ChangeTeller(ticketForSaving, formData, PrevValue.Description);
 
                 CreateHistory(ticketForSaving, HistoryProperty.TicketDescription,
                     descriptionChanged, appUserId,
                     ticketForSaving.Description, formData.Description);
 
-                var projectChanged = ticketForSaving.ProjectId != Convert.ToInt32(formData.GetProjectBelong);
+                var projectChanged = ChangeTeller(ticketForSaving, formData, PrevValue.ProjectId);
 
                 CreateHistory(ticketForSaving, HistoryProperty.ProjectBelong,
                     projectChanged, appUserId,
                     ticketForSaving.ProjectId.ToString(), formData.GetProjectBelong);
 
-                var ticketPriorityChanged = ticketForSaving.TicketPriorityId != Convert.ToInt32(formData.GetTicketPriority);
+                var ticketPriorityChanged = ChangeTeller(ticketForSaving, formData, PrevValue.TicketPriorityId);
 
                 CreateHistory(ticketForSaving, HistoryProperty.TicketPriority,
                     ticketPriorityChanged, appUserId,
                     ticketForSaving.TicketPriorityId.ToString(), formData.GetTicketPriority);
 
-                var ticketTypeChanged = ticketForSaving.TicketTypeId != Convert.ToInt32(formData.GetTicketType);
+                var ticketTypeChanged = ChangeTeller(ticketForSaving, formData, PrevValue.TicketTypeId);
 
                 CreateHistory(ticketForSaving, HistoryProperty.TicketType,
                     ticketTypeChanged, appUserId,
@@ -627,7 +626,6 @@ namespace BugTracker.Controllers
         [Authorize(Roles = "Admin, Project Manager")]
         public ActionResult OptIn(int tkId)
         {
-            ReciveNote = true;
             var appUserId = User.Identity.GetUserId();
             AddDelNotification(true, tkId, appUserId);
 
@@ -644,7 +642,6 @@ namespace BugTracker.Controllers
         [Authorize(Roles = "Admin, Project Manager")]
         public ActionResult OptOut(int tkId)
         {
-            ReciveNote = false;
             var appUserId = User.Identity.GetUserId();
             AddDelNotification(false, tkId, appUserId);
 
@@ -1090,6 +1087,36 @@ namespace BugTracker.Controllers
             return model;
 
 
+        }
+
+        private bool ChangeTeller(Ticket ticket, CreateEditTicketViewModel data, PrevValue prevInput)
+        {
+            if (prevInput == PrevValue.Title)
+            {
+                return ticket.Title != data.Title;
+            }
+            else if (prevInput == PrevValue.Description)
+            {
+                return ticket.Description != data.Description;
+            }
+            else if (prevInput == PrevValue.ProjectId)
+            {
+                return ticket.ProjectId != Convert.ToInt32(data.GetProjectBelong);
+            }
+            else if (prevInput == PrevValue.TicketPriorityId)
+            {
+                return ticket.TicketPriorityId != Convert.ToInt32(data.GetTicketPriority);
+            }
+            else if (prevInput == PrevValue.TicketTypeId)
+            {
+                return ticket.TicketTypeId != Convert.ToInt32(data.GetTicketType);
+            }
+            else if (prevInput == PrevValue.TicketStatusId)
+            {
+                return ticket.TicketStatusId != Convert.ToInt32(data.GetTicketStatus);
+            }
+
+            return false;
         }
 
         private void CreateHistory(Ticket ticket, HistoryProperty historyProperty,

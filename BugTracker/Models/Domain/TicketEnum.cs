@@ -21,6 +21,27 @@ namespace BugTracker.Models.Domain
             TicketDescription,
             Assignee,
         }
+        public enum PrevValue
+        {
+            TicketStatusId,
+            Title,
+            Description,
+            ProjectId,
+            TicketPriorityId,
+            TicketTypeId
+
+
+        }
+        public enum NextValue
+        {
+            GetTicketStatus,
+            Title,
+            Description,
+            GetProjectBelong,
+            GetTicketPriority,
+            GetTicketType
+
+        }
 
     }
 }
