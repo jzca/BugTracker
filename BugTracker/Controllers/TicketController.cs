@@ -823,6 +823,13 @@ namespace BugTracker.Controllers
             {
                 DbContext.TicketAttachments.Remove(attachmentToDel);
                 DbContext.SaveChanges();
+
+                var fileFullUrl = attachmentToDel.FilePath;
+
+                if (System.IO.File.Exists(fileFullUrl))
+                {
+                    System.IO.File.Delete(fileFullUrl);
+                }
             }
 
             return redirectLink;
@@ -1091,6 +1098,9 @@ namespace BugTracker.Controllers
 
         private bool ChangeTeller(Ticket ticket, CreateEditTicketViewModel data, PrevValue prevInput)
         {
+            ////reflection
+            //ticket.GetType().GetProperties();
+
             if (prevInput == PrevValue.Title)
             {
                 return ticket.Title != data.Title;

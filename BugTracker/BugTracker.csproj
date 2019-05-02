@@ -17,7 +17,8 @@
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
-    <Use64BitIISExpress>false</Use64BitIISExpress>
+    <Use64BitIISExpress>
+    </Use64BitIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -246,6 +247,7 @@
     <Content Include="private.config">
       <SubType>Designer</SubType>
     </Content>
+    <None Include="Properties\PublishProfiles\JZ-BugTracker - Web Deploy.pubxml" />
     <None Include="resources\jqValidate\jquery.validate-vsdoc.js" />
     <Content Include="resources\jqValidate\jquery.validate.js" />
     <Content Include="resources\jqValidate\jquery.validate.min.js" />

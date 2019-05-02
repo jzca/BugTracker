@@ -42,16 +42,29 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <div class="col-md-offset-2 col-md-10">
-                                    <input type="submit" value="Log in" class="btn btn-default" />
+                                <div class="col-md-offset-2 col-md-2">
+                                    <input type="submit" value="Log in" class="btn btn-outline-secondary btn-lg" />
                                 </div>
                             </div>
+                            @*<p class="text-secondary">
+                                    @Html.ActionLink("Register as a new user", "Register")
+                                </p>
+
+                                <p>
+                                    @Html.ActionLink("Forgot your password?", "ForgotPassword")
+                                </p>*@
                             <p>
-                                @Html.ActionLink("Register as a new user", "Register")
+                                <a class="btn-outline-secondary"
+                                   href="@Url.Action("Register")">
+                                    Register as a new user
+                                </a>
                             </p>
 
                             <p>
-                                @Html.ActionLink("Forgot your password?", "ForgotPassword")
+                                <a class="btn-outline-secondary"
+                                   href="@Url.Action("ForgotPassword")">
+                                    Forgot your password?
+                                </a>
                             </p>
                             <a class="btn btn-outline-primary btn-lg"
                                href="@Url.Action("DemoLogin")">

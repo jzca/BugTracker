@@ -33,6 +33,11 @@ namespace BugTracker.Controllers
         [LogActionFilter]
         public ActionResult Index()
         {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction(nameof(AccountController.Login), "Account");
+            }
+
             bool isAdmin = IsAdmin();
             bool isProjm = IsProjectManager();
             bool isSubmitter = IsSubmitter();
