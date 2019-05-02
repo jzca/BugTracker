@@ -184,6 +184,32 @@ namespace BugTracker.Migrations
                 userManager.AddToRole(pmUser.Id, "Project Manager");
             }
 
+            //Creating the devUser2
+            ApplicationUser devUser2;
+
+            if (!context.Users.Any(
+                p => p.UserName == "dev2@mybugtracker.com"))
+            {
+                devUser2 = new ApplicationUser();
+                devUser2.UserName = "dev2@mybugtracker.com";
+                devUser2.Email = "dev2@mybugtracker.com";
+                devUser2.DisplayName = "devTestEmail";
+
+                userManager.Create(devUser2, "Password-1");
+            }
+            else
+            {
+                devUser2 = context
+                    .Users
+                    .First(p => p.UserName == "dev2@mybugtracker.com");
+            }
+
+            //Make sure the user is on the dev role
+            if (!userManager.IsInRole(devUser2.Id, "Developer"))
+            {
+                userManager.AddToRole(devUser2.Id, "Developer");
+            }
+
 
 
 

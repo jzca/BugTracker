@@ -459,6 +459,15 @@ namespace BugTracker.Controllers
                     assigneeName = ticket.Assignee.DisplayName;
                 }
 
+                if (assigneeChanged)
+                {
+                    AddDelNotification(false, tkId, ticket.AssigneeId);
+                    var subject2 = "Assignee";
+                    var body2 = $"{ticket.Assignee.DisplayName} are removed from it.";
+
+                    SendEmail(ticket, appUserId, subject2, body2);
+                }
+
                 CreateHistory(ticket, HistoryProperty.Assignee,
                     assigneeChanged, appUserId,
                     assigneeName, user.DisplayName);
@@ -558,46 +567,7 @@ namespace BugTracker.Controllers
                 return RedirectToAction(nameof(TicketController.IndexDevAll));
             }
 
-            bool isNotCreator = ticket.CreatorId != appUserId;
-            bool isNotAssignee = ticket.AssigneeId != appUserId;
-
-            var model = new DetailTicketViewModel();
-
-            model.Id = ticket.Id;
-            model.Title = ticket.Title;
-            model.Description = ticket.Description;
-            model.TicketPriority = ticket.TicketPriority.Name;
-            model.TicketStatus = ticket.TicketStatus.Name;
-            model.TicketType = ticket.TicketType.Name;
-            model.AssignedDev = ticket.Assignee?.DisplayName ?? "None";
-            model.ProjectName = ticket.Project.Name;
-            model.CreatorName = ticket.Creator.DisplayName;
-            model.DateCreated = ticket.DateCreated;
-            model.DateUpdated = ticket.DateUpdated;
-            model.TicketAttachments = Mapper.Map<List<AttachmentDetailViewModel>>(ticket.TicketAttachments);
-            model.TicketComments = Mapper.Map<List<CommentDetailViewModel>>(ticket.TicketComments);
-            model.TicketHistories = Mapper.Map<List<HistoryDetailViewModel>>(ticket.TicketHistories);
-            model.AreYouOwner = true;
-            model.Subscription = ticket.TicketNotifications
-                                    .Any(p => p.UserId == appUserId);
-
-            if (!IsAdmin() && !IsProjectManager())
-            {
-                if (isNotCreator && isNotAssignee)
-                {
-                    model.AreYouOwner = false;
-                }
-
-                foreach (var a in model.TicketComments)
-                {
-                    a.OwnerComment = a.CreatorId == appUserId;
-                }
-
-                foreach (var a in model.TicketAttachments)
-                {
-                    a.OwnerAttachment = a.CreatorId == appUserId;
-                }
-            }
+            var model = MStateNotValidDetail(ticket, appUserId);
 
             return View(model);
 
@@ -681,14 +651,25 @@ namespace BugTracker.Controllers
             //// Handling file upload
             if (formData.Media != null)
             {
+                //// Check size
+                var actualSize = Convert.ToInt32(formData.Media.ContentLength);
+                var ceiling = 2097152;
+                var isOverLimit = actualSize.CompareTo(ceiling);
+
+                if (isOverLimit > 0)
+                {
+                    ModelState.AddModelError("", "File is too big, must smaller than 2 MB.");
+                    return View("Detail", MStateNotValidDetail(ticket, appUserId));
+                }
+
+
                 //// Validating file upload
                 var fileExtensionForSaving = Path.GetExtension(formData.Media.FileName).ToLower();
 
                 if (!AttachmentHandler.AllowedFileExtensions.Contains(fileExtensionForSaving))
                 {
                     ModelState.AddModelError("", "File extension is not allowed.");
-                    ViewBag.ErroMsg = "File extension is not allowed.";
-                    return View("ErroMsg");
+                    return View("Detail", MStateNotValidDetail(ticket, appUserId));
                 }
 
 
