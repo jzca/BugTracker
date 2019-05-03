@@ -457,15 +457,25 @@ namespace BugTracker.Controllers
                 if (ticket.AssigneeId != null)
                 {
                     assigneeName = ticket.Assignee.DisplayName;
-                }
 
-                if (assigneeChanged)
-                {
-                    AddDelNotification(false, tkId, ticket.AssigneeId);
-                    var subject2 = "Assignee";
-                    var body2 = $"{ticket.Assignee.DisplayName} are removed from it.";
+                    if (assigneeChanged)
+                    {
+                        AddDelNotification(false, tkId, ticket.AssigneeId);
+                        var subject2 = "Assignee";
+                        var body2 = $"{ticket.Assignee.DisplayName} are removed from it.";
 
-                    SendEmail(ticket, appUserId, subject2, body2);
+                        try
+                        {
+                            SendEmail(ticket, appUserId, subject2, body2);
+                        }
+                        catch (Exception em)
+                        {
+                            ViewBag.ErroMsg = $"{em.Message}";
+                            return View("ErroMsg");
+                        }
+
+                    }
+
                 }
 
                 CreateHistory(ticket, HistoryProperty.Assignee,
@@ -477,9 +487,17 @@ namespace BugTracker.Controllers
                 AddDelNotification(true, tkId, userId);
 
                 var subject = "Assignee";
-                var body = $"{subject} is now: {assigneeName}.";
+                var body = $"{subject} is now: {user.DisplayName}.";
 
-                SendEmail(ticket, appUserId, subject, body);
+                try
+                {
+                    SendEmail(ticket, appUserId, subject, body);
+                }
+                catch (Exception em)
+                {
+                    ViewBag.ErroMsg = $"{em.Message}";
+                    return View("ErroMsg");
+                }
 
 
 
@@ -517,12 +535,12 @@ namespace BugTracker.Controllers
                         .Select(b => b.Id).FirstOrDefault();
                 if (existedNoteId != 0)
                 {
-                    AddDelNotification(false, tkId, userId);
-
                     var subject = "Assignee";
                     var body = $"You are removed from it.";
 
                     SendEmail(ticket, appUserId, subject, body);
+
+                    AddDelNotification(false, tkId, userId);
                 }
             }
 
